@@ -1,0 +1,138 @@
+package com.padelgroup.padelMatch.ui.navigation
+
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.padelgroup.padelMatch.ui.calendar.CalendarScreen
+import com.padelgroup.padelMatch.ui.calendar.CalendarViewModel
+import com.padelgroup.padelMatch.ui.history.MatchHistoryScreen
+import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
+import com.padelgroup.padelMatch.ui.history.OverflowMenu
+import com.padelgroup.padelMatch.ui.statistics.StatisticsScreen
+import com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    historyViewModel: MatchHistoryViewModel,
+    onNewMatch: () -> Unit,
+    onEditResults: (Long) -> Unit
+) {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val isHistoryTab = currentRoute == HomeTab.HISTORY.route || currentRoute == null
+
+    val todaySessionExists by historyViewModel.todaySessionExists.collectAsState()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { historyViewModel.importFromUri(it) }
+    }
+
+    LaunchedEffect(Unit) {
+        historyViewModel.dataEvents.collect { event ->
+            when (event) {
+                is MatchHistoryViewModel.DataEvent.Share -> {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/json"
+                        putExtra(Intent.EXTRA_STREAM, event.uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Exportar PadelMatch"))
+                }
+                is MatchHistoryViewModel.DataEvent.SnackbarMessage -> {
+                    snackbarHostState.showSnackbar(message = event.text, duration = SnackbarDuration.Short)
+                }
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("PadelMatch", fontWeight = FontWeight.Bold) },
+                actions = {
+                    OverflowMenu(
+                        onImport = { filePicker.launch(arrayOf("application/json")) },
+                        onExport = { historyViewModel.exportData() }
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        },
+        floatingActionButton = {
+            if (isHistoryTab) {
+                ExtendedFloatingActionButton(
+                    text = { Text(if (todaySessionExists) "Ya hay partida hoy" else "Nueva partida") },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    onClick = { if (!todaySessionExists) onNewMatch() },
+                    containerColor = if (todaySessionExists) MaterialTheme.colorScheme.surfaceVariant
+                    else MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = if (todaySessionExists) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        },
+        bottomBar = {
+            NavigationBar {
+                HomeTab.entries.forEach { tab ->
+                    NavigationBarItem(
+                        selected = currentRoute == tab.route,
+                        onClick = {
+                            navController.navigate(tab.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(tab.icon, contentDescription = tab.label) },
+                        label = { Text(tab.label) }
+                    )
+                }
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = HomeTab.HISTORY.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(HomeTab.HISTORY.route) {
+                MatchHistoryScreen(
+                    viewModel = historyViewModel,
+                    todaySessionExists = todaySessionExists,
+                    onNewMatch = onNewMatch,
+                    onEditResults = onEditResults
+                )
+            }
+            composable(HomeTab.CALENDAR.route) {
+                val calendarViewModel = hiltViewModel<CalendarViewModel>()
+                CalendarScreen(viewModel = calendarViewModel)
+            }
+            composable(HomeTab.STATISTICS.route) {
+                val statisticsViewModel = hiltViewModel<StatisticsViewModel>()
+                StatisticsScreen(viewModel = statisticsViewModel)
+            }
+        }
+    }
+}
+

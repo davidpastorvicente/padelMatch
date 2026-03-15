@@ -1,0 +1,39 @@
+# ─── Android / Gradle ────────────────────────────────────────────────────────
+*.iml
+local.properties
+.DS_Store
+build/
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Android Studio / IntelliJ
+/.idea/
+*.iws
+*.ipr
+out/
+
+# Kotlin build artefacts
+/app/build/
+/app/.cxx/
+
+# Gradle caches
+.gradle/
+
+# Keystore files — never commit these
+*.jks
+*.keystore
+
+# ─── OpenSpec ────────────────────────────────────────────────────────────────
+# Keep specs/, changes/, config.yaml — source of truth.
+# Exclude any generated instruction caches.
+openspec/.cache/
+openspec/changes/
+
+# ─── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store

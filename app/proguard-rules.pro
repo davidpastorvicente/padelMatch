@@ -1,0 +1,9 @@
+-keep class org.apache.poi.** { *; }
+-keep class org.openxmlformats.** { *; }
+-keep class com.microsoft.schemas.** { *; }
+-dontwarn org.apache.poi.**
+-dontwarn org.openxmlformats.**
+-dontwarn com.microsoft.schemas.**
+-dontwarn org.apache.xmlbeans.**
+-dontwarn org.etsi.**
+-dontwarn org.w3.**

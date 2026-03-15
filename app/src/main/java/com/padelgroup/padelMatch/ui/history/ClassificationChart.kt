@@ -1,0 +1,53 @@
+package com.padelgroup.padelMatch.ui.history
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
+import com.padelgroup.padelMatch.ui.theme.playerColors
+
+@Composable
+fun ClassificationChart(players: List<SessionPlayerWithName>) {
+    val sorted = players.sortedWith(
+        compareByDescending<SessionPlayerWithName> { it.winRatio }
+            .thenBy { it.playerName }
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        sorted.forEach { player ->
+            val (bg, fg) = playerColors(player.playerName)
+            val pct = (player.winRatio * 100).toInt()
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = player.playerName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = fg,
+                    modifier = Modifier.width(72.dp)
+                )
+                LinearProgressIndicator(
+                    progress = { player.winRatio },
+                    modifier = Modifier.weight(1f).height(14.dp),
+                    color = bg,
+                    trackColor = bg.copy(alpha = 0.2f)
+                )
+                Text(
+                    text = "$pct%",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = fg,
+                    modifier = Modifier.width(32.dp)
+                )
+            }
+        }
+    }
+}

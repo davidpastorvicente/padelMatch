@@ -1,0 +1,54 @@
+schema: spec-driven
+
+context: |
+  ## Project: PadelMatch Android App
+
+  **Platform:** Android (Kotlin, Jetpack Compose)
+  **Design system:** Material 3 Expressive (latest M3 spec — dynamic color, expressive motion, large FABs, card-based layouts)
+  **Architecture:** MVVM + Clean Architecture (ViewModel, Repository, Room/SQLite local DB)
+  **Build system:** Gradle (Kotlin DSL), minSdk 26, targetSdk 35
+
+  ## Domain
+
+  A padel group (David, Iván, Rubén, Deivid, Charlie, Javi, Sancho, Chito) plays regular sessions.
+  Each session has a date, a set of attending players (4–7), and a series of individual games (partidos).
+  Each game is a 2v2 match between two pairs of players from the session.
+  Players accumulate a win ratio (Puntos) across the games in each session.
+
+  ## Data model (from matches.xlsx)
+
+  - **Session** (Sesión): date (DDMMYY), list of players, list of games
+  - **Player** (Jugador): name, per-session win ratio
+  - **Game** (Partido): sequential number, Pair1 (2 players), Pair2 (2 players), optional score
+  - **Template** (Plantilla): pre-defined game rotation schedule for N players (4, 5, 6, or 7)
+    - Plantilla 4: 4 players → 3 unique pairings × 2 rounds
+    - Plantilla 5: 5 players → 5 rotation games
+    - Plantilla 6: 6 players → 9 rotation games
+    - Plantilla 7: 7 players → 9+ rotation games
+
+  ## Existing data
+
+  The xlsx file (matches.xlsx) holds ~15 historical sessions dating from Sep 2025 to Feb 2026.
+  The app will import this data into local Room DB on first launch.
+
+  ## Key screens / features
+
+  1. **Match History screen** — chronological list of sessions, each expandable to show per-game results and player win ratios
+  2. **New Match screen** — select attending players, auto-select template by count, generate game schedule, enter scores live
+  3. **Player Stats screen** (stretch) — trend charts per player using win-ratio history
+
+  ## Conventions
+
+  - Kotlin idiomatic code (data classes, sealed classes, coroutines/Flow)
+  - Composable functions named in PascalCase
+  - Repository pattern: data sources injected via Hilt
+  - Conventional commits (feat:, fix:, chore:)
+  - Spanish domain terms kept as-is (Partido, Pareja, Jugador, Sesión) in data layer; English in UI layer
+
+rules:
+  proposal:
+    - Keep proposals under 600 words
+    - Always include a Non-goals section
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Group tasks by screen/module
