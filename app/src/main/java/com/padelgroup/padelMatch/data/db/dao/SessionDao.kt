@@ -3,6 +3,7 @@ package com.padelgroup.padelMatch.data.db.dao
 import androidx.room.*
 import com.padelgroup.padelMatch.data.db.entity.SessionEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
+import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -45,6 +46,14 @@ interface SessionDao {
         LIMIT 10
     """)
     suspend fun getPlayerWinRatioHistory(playerId: Long): List<Float>
+
+    @Query("""
+        SELECT s.date AS date, sp.winRatio AS winRatio FROM session_players sp
+        JOIN sessions s ON s.id = sp.sessionId
+        WHERE sp.playerId = :playerId
+        ORDER BY s.date ASC
+    """)
+    suspend fun getPlayerSessionHistory(playerId: Long): List<PlayerSessionEntry>
 }
 
 data class SessionPlayerWithName(

@@ -1,8 +1,9 @@
-# player-statistics Specification
-
 ## Purpose
-TBD - created by archiving change calendar-and-statistics. Update Purpose after archive.
+
+Define the player statistics screen showing per-player aggregate performance cards, and navigation to individual player detail screens.
+
 ## Requirements
+
 ### Requirement: Per-Player Aggregate Statistics
 
 The statistics screen SHALL display one card per player, sorted by overall win ratio descending, showing aggregate performance across all sessions the player attended.
@@ -12,14 +13,20 @@ The statistics screen SHALL display one card per player, sorted by overall win r
 - **WHEN** the user opens the Statistics tab
 - **THEN** a list of player cards is shown, each containing:
   - Player name with their color badge
-  - Total games played (across all sessions)
-  - Total wins and losses
+  - Number of partidos (sessions attended)
+  - Number of sets (total games played across all sessions)
+  - Total wins
   - Overall win ratio as a percentage
 
 #### Scenario: No sessions recorded
 
 - **WHEN** no sessions exist in the database
 - **THEN** the statistics screen shows an empty-state message ("Sin datos todavía")
+
+#### Scenario: Player card tapped
+
+- **WHEN** the user taps a player card in the Statistics tab
+- **THEN** the app SHALL navigate to `PlayerDetailScreen` for that player
 
 ### Requirement: Win-Ratio Trend Spark-Line
 

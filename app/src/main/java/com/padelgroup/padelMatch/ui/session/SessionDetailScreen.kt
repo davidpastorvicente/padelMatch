@@ -116,7 +116,7 @@ fun SessionDetailScreen(
                             "Clasificación",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                            modifier = Modifier.padding(bottom = 12.dp)
                         )
                         ClassificationChart(players = s.players)
                     }
@@ -125,7 +125,7 @@ fun SessionDetailScreen(
                 if (s.games.isNotEmpty()) {
                     item {
                         Text(
-                            "Partidos",
+                            "Sets",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )

@@ -4,6 +4,7 @@ import com.padelgroup.padelMatch.data.db.dao.GameDao
 import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.dao.SessionDao
 import com.padelgroup.padelMatch.data.model.PlayerStats
+import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -24,15 +25,20 @@ class StatisticsRepository @Inject constructor(
             val losses = totalGames - wins
             val winRatio = wins.toFloat() / totalGames
             val history = sessionDao.getPlayerWinRatioHistory(player.id)
+            val sessionsAttended = sessionDao.getPlayerSessionHistory(player.id).size
             PlayerStats(
                 player = player,
                 totalGames = totalGames,
                 wins = wins,
                 losses = losses,
                 winRatio = winRatio,
-                history = history
+                history = history,
+                sessionsAttended = sessionsAttended
             )
         }.sortedByDescending { it.winRatio }
         emit(stats)
     }
+
+    suspend fun getPlayerSessionHistory(playerId: Long): List<PlayerSessionEntry> =
+        sessionDao.getPlayerSessionHistory(playerId)
 }

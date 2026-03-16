@@ -17,7 +17,7 @@ import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
 
 @Composable
-fun StatisticsScreen(viewModel: StatisticsViewModel) {
+fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
     val playerStats by viewModel.playerStats.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -34,7 +34,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(playerStats, key = { it.player.id }) { stats ->
-                    PlayerStatCard(stats = stats)
+                    PlayerStatCard(stats = stats, onClick = { onPlayerClick(stats.player.id) })
                 }
                 item { Spacer(Modifier.height(80.dp)) }
             }
@@ -43,11 +43,12 @@ fun StatisticsScreen(viewModel: StatisticsViewModel) {
 }
 
 @Composable
-fun PlayerStatCard(stats: PlayerStats) {
+fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}) {
     val (badgeBg, badgeFg) = playerColors(stats.player.name)
     val winPct = (stats.winRatio * 100).toInt()
 
     ElevatedCard(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
@@ -70,7 +71,7 @@ fun PlayerStatCard(stats: PlayerStats) {
 
             // Stats table: header row + value row, evenly distributed
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("Partidos", "Victorias", "Derrotas", "Ratio").forEach { label ->
+                listOf("Partidos", "Sets", "Victorias", "Ratio").forEach { label ->
                     Text(
                         text = label,
                         modifier = Modifier.weight(1f),
@@ -83,9 +84,9 @@ fun PlayerStatCard(stats: PlayerStats) {
             Spacer(Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 listOf(
+                    stats.sessionsAttended.toString(),
                     stats.totalGames.toString(),
                     stats.wins.toString(),
-                    stats.losses.toString(),
                     "$winPct%"
                 ).forEach { value ->
                     Text(

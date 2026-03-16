@@ -13,6 +13,8 @@ import com.padelgroup.padelMatch.ui.results.EditResultsScreen
 import com.padelgroup.padelMatch.ui.results.EditResultsViewModel
 import com.padelgroup.padelMatch.ui.session.SessionDetailScreen
 import com.padelgroup.padelMatch.ui.session.SessionDetailViewModel
+import com.padelgroup.padelMatch.ui.statistics.PlayerDetailScreen
+import com.padelgroup.padelMatch.ui.statistics.PlayerDetailViewModel
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -22,6 +24,9 @@ sealed class Screen(val route: String) {
     }
     object SessionDetail : Screen("sessionDetail/{sessionId}") {
         fun createRoute(sessionId: Long) = "sessionDetail/$sessionId"
+    }
+    object PlayerDetail : Screen("playerDetail/{playerId}") {
+        fun createRoute(playerId: Long) = "playerDetail/$playerId"
     }
 }
 
@@ -33,7 +38,8 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             HomeScreen(
                 historyViewModel = historyViewModel,
                 onNewMatch = { navController.navigate(Screen.NewMatch.route) },
-                onSessionClick = { sessionId -> navController.navigate(Screen.SessionDetail.createRoute(sessionId)) }
+                onSessionClick = { sessionId -> navController.navigate(Screen.SessionDetail.createRoute(sessionId)) },
+                onPlayerClick = { playerId -> navController.navigate(Screen.PlayerDetail.createRoute(playerId)) }
             )
         }
         composable(Screen.NewMatch.route) {
@@ -63,6 +69,16 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
                 viewModel = sessionDetailViewModel,
                 onBack = { navController.popBackStack() },
                 onEditResults = { id -> navController.navigate(Screen.EditResults.createRoute(id)) }
+            )
+        }
+        composable(
+            route = Screen.PlayerDetail.route,
+            arguments = listOf(navArgument("playerId") { type = NavType.LongType })
+        ) {
+            val playerDetailViewModel = hiltViewModel<PlayerDetailViewModel>()
+            PlayerDetailScreen(
+                viewModel = playerDetailViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }

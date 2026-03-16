@@ -28,7 +28,8 @@ import com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel
 fun HomeScreen(
     historyViewModel: MatchHistoryViewModel,
     onNewMatch: () -> Unit,
-    onSessionClick: (Long) -> Unit
+    onSessionClick: (Long) -> Unit,
+    onPlayerClick: (Long) -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -148,7 +149,7 @@ fun HomeScreen(
             }
             composable(HomeTab.STATISTICS.route) {
                 val statisticsViewModel = hiltViewModel<StatisticsViewModel>()
-                StatisticsScreen(viewModel = statisticsViewModel)
+                StatisticsScreen(viewModel = statisticsViewModel, onPlayerClick = onPlayerClick)
             }
         }
     }
