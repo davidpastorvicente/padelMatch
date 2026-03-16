@@ -132,8 +132,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                 )
                 SessionCard(
                     session = selectedSession!!,
-                    onEditResults = { /* read-only in calendar */ },
-                    onDelete = { /* read-only in calendar */ }
+                    onClick = {}
                 )
                 Spacer(Modifier.height(80.dp))
             }

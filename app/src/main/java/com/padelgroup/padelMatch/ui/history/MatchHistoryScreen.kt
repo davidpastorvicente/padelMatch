@@ -22,7 +22,7 @@ fun MatchHistoryScreen(
     viewModel: MatchHistoryViewModel,
     todaySessionExists: Boolean = false,
     onNewMatch: () -> Unit,
-    onEditResults: (sessionId: Long) -> Unit = {}
+    onSessionClick: (sessionId: Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val importState by viewModel.importState.collectAsState()
@@ -52,8 +52,7 @@ fun MatchHistoryScreen(
                     items(state.sessions, key = { it.id }) { session ->
                         SessionCard(
                             session = session,
-                            onEditResults = { onEditResults(session.id) },
-                            onDelete = { viewModel.deleteSession(session.id) }
+                            onClick = { onSessionClick(session.id) }
                         )
                     }
                     item { Spacer(Modifier.height(80.dp)) }

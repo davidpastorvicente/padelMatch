@@ -9,20 +9,14 @@ The app SHALL display all padel sessions in reverse-chronological order on the h
 #### Scenario: Sessions loaded from database
 
 - **WHEN** the user opens the app
-- **THEN** the **Historial** tab shows a list of session cards, each displaying the date and attending player names
+- **THEN** the Historial tab shows a list of compact session cards, each displaying only the date and attending player name badges
 - **AND** sessions are ordered from most recent to oldest
 
-#### Scenario: Session card expanded
+#### Scenario: Session card tapped (MODIFIED)
 
 - **WHEN** the user taps a session card
-- **THEN** the card expands to show the full list of games as bracket cards, player win ratios, and action buttons
-- **AND** each game is displayed as a `BracketGameCard` with players in quadrant positions, game number centred, and winning team highlighted
-
-#### Scenario: Bottom navigation visible (MODIFIED)
-
-- **WHEN** the user is on any of the three home tabs (Historial, Calendario, Estadísticas)
-- **THEN** a `NavigationBar` is visible at the bottom of the screen
-- **AND** the active tab is highlighted
+- **THEN** the app navigates to `SessionDetailScreen` for that session
+- **AND** the card does NOT expand in-place
 
 ### Requirement: Game Winner Highlight
 

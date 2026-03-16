@@ -29,7 +29,7 @@ import com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel
 fun HomeScreen(
     historyViewModel: MatchHistoryViewModel,
     onNewMatch: () -> Unit,
-    onEditResults: (Long) -> Unit
+    onSessionClick: (Long) -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -121,7 +121,7 @@ fun HomeScreen(
                     viewModel = historyViewModel,
                     todaySessionExists = todaySessionExists,
                     onNewMatch = onNewMatch,
-                    onEditResults = onEditResults
+                    onSessionClick = onSessionClick
                 )
             }
             composable(HomeTab.CALENDAR.route) {

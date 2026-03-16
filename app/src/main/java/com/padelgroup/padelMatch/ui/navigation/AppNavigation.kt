@@ -11,12 +11,17 @@ import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
 import com.padelgroup.padelMatch.ui.newmatch.NewMatchScreen
 import com.padelgroup.padelMatch.ui.results.EditResultsScreen
 import com.padelgroup.padelMatch.ui.results.EditResultsViewModel
+import com.padelgroup.padelMatch.ui.session.SessionDetailScreen
+import com.padelgroup.padelMatch.ui.session.SessionDetailViewModel
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object NewMatch : Screen("newMatch")
     object EditResults : Screen("editResults/{sessionId}") {
         fun createRoute(sessionId: Long) = "editResults/$sessionId"
+    }
+    object SessionDetail : Screen("sessionDetail/{sessionId}") {
+        fun createRoute(sessionId: Long) = "sessionDetail/$sessionId"
     }
 }
 
@@ -28,7 +33,7 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             HomeScreen(
                 historyViewModel = historyViewModel,
                 onNewMatch = { navController.navigate(Screen.NewMatch.route) },
-                onEditResults = { sessionId -> navController.navigate(Screen.EditResults.createRoute(sessionId)) }
+                onSessionClick = { sessionId -> navController.navigate(Screen.SessionDetail.createRoute(sessionId)) }
             )
         }
         composable(Screen.NewMatch.route) {
@@ -47,6 +52,17 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             EditResultsScreen(
                 viewModel = editResultsViewModel,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.SessionDetail.route,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType })
+        ) {
+            val sessionDetailViewModel = hiltViewModel<SessionDetailViewModel>()
+            SessionDetailScreen(
+                viewModel = sessionDetailViewModel,
+                onBack = { navController.popBackStack() },
+                onEditResults = { id -> navController.navigate(Screen.EditResults.createRoute(id)) }
             )
         }
     }
