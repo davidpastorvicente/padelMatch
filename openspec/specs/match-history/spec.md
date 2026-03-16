@@ -12,11 +12,17 @@ The app SHALL display all padel sessions in reverse-chronological order on the h
 - **THEN** the Historial tab shows a list of compact session cards, each displaying only the date and attending player name badges
 - **AND** sessions are ordered from most recent to oldest
 
-#### Scenario: Session card tapped (MODIFIED)
+#### Scenario: Session list filtered by date
 
-- **WHEN** the user taps a session card
-- **THEN** the app navigates to `SessionDetailScreen` for that session
-- **AND** the card does NOT expand in-place
+- **WHEN** the user selects a date via the inline calendar panel
+- **THEN** the session list SHALL show only sessions matching that date
+- **AND** if no session exists for that date, the list SHALL show an empty state message "Sin partida ese día"
+
+#### Scenario: Bottom navigation
+
+- **WHEN** the user is on any home tab
+- **THEN** the bottom NavigationBar SHALL show exactly two tabs: Historial and Estadísticas
+- **AND** the Calendario tab SHALL NOT appear in the bottom navigation
 
 ### Requirement: Game Winner Highlight
 
@@ -58,7 +64,7 @@ The app SHALL show a friendly empty state when no sessions exist.
 
 The session card action buttons SHALL use concise labels.
 
-#### Scenario: Edit button label (MODIFIED)
+#### Scenario: Edit button label
 
 - **WHEN** a session card is expanded
 - **THEN** the edit action button is labelled "Editar" (not "Editar resultados")

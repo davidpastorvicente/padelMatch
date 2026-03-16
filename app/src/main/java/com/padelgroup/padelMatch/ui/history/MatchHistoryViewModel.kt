@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -59,6 +60,33 @@ class MatchHistoryViewModel @Inject constructor(
             sessions.any { it.date == today }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    // Calendar state
+    private val _calendarVisible = MutableStateFlow(false)
+    val calendarVisible: StateFlow<Boolean> = _calendarVisible
+
+    private val _currentMonth = MutableStateFlow(YearMonth.now())
+    val currentMonth: StateFlow<YearMonth> = _currentMonth
+
+    private val _selectedDate = MutableStateFlow<String?>(null)
+    val selectedDate: StateFlow<String?> = _selectedDate
+
+    val sessionDates: StateFlow<Set<String>> = sessionRepository.getAllSessionsFlow()
+        .map { sessions -> sessions.map { it.date }.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    fun toggleCalendar() {
+        val isVisible = _calendarVisible.value
+        if (isVisible) _selectedDate.value = null
+        _calendarVisible.value = !isVisible
+    }
+
+    fun previousMonth() { _currentMonth.update { it.minusMonths(1) } }
+    fun nextMonth() { _currentMonth.update { it.plusMonths(1) } }
+
+    fun selectDate(date: String?) {
+        _selectedDate.value = if (_selectedDate.value == date) null else date
+    }
 
     fun triggerImportIfNeeded() {
         viewModelScope.launch {

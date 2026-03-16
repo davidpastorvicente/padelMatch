@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,8 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.padelgroup.padelMatch.ui.calendar.CalendarScreen
-import com.padelgroup.padelMatch.ui.calendar.CalendarViewModel
 import com.padelgroup.padelMatch.ui.history.MatchHistoryScreen
 import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
 import com.padelgroup.padelMatch.ui.history.OverflowMenu
@@ -37,6 +36,10 @@ fun HomeScreen(
     val isHistoryTab = currentRoute == HomeTab.HISTORY.route || currentRoute == null
 
     val todaySessionExists by historyViewModel.todaySessionExists.collectAsState()
+    val calendarVisible by historyViewModel.calendarVisible.collectAsState()
+    val currentMonth by historyViewModel.currentMonth.collectAsState()
+    val selectedDate by historyViewModel.selectedDate.collectAsState()
+    val sessionDates by historyViewModel.sessionDates.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -67,6 +70,18 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("PadelMatch", fontWeight = FontWeight.Bold) },
                 actions = {
+                    if (isHistoryTab) {
+                        IconButton(onClick = { historyViewModel.toggleCalendar() }) {
+                            Icon(
+                                Icons.Default.CalendarMonth,
+                                contentDescription = "Filtrar por fecha",
+                                tint = if (calendarVisible)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
                     OverflowMenu(
                         onImport = { filePicker.launch(arrayOf("application/json")) },
                         onExport = { historyViewModel.exportData() }
@@ -121,12 +136,15 @@ fun HomeScreen(
                     viewModel = historyViewModel,
                     todaySessionExists = todaySessionExists,
                     onNewMatch = onNewMatch,
-                    onSessionClick = onSessionClick
+                    onSessionClick = onSessionClick,
+                    calendarVisible = calendarVisible,
+                    currentMonth = currentMonth,
+                    selectedDate = selectedDate,
+                    sessionDates = sessionDates,
+                    onPreviousMonth = { historyViewModel.previousMonth() },
+                    onNextMonth = { historyViewModel.nextMonth() },
+                    onSelectDate = { historyViewModel.selectDate(it) }
                 )
-            }
-            composable(HomeTab.CALENDAR.route) {
-                val calendarViewModel = hiltViewModel<CalendarViewModel>()
-                CalendarScreen(viewModel = calendarViewModel)
             }
             composable(HomeTab.STATISTICS.route) {
                 val statisticsViewModel = hiltViewModel<StatisticsViewModel>()
@@ -135,4 +153,5 @@ fun HomeScreen(
         }
     }
 }
+
 
