@@ -46,7 +46,10 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             val newMatchViewModel = hiltViewModel<com.padelgroup.padelMatch.ui.newmatch.NewMatchViewModel>()
             NewMatchScreen(
                 viewModel = newMatchViewModel,
-                onSaved = { navController.popBackStack() },
+                onSaved = { sessionId ->
+                    navController.popBackStack()
+                    navController.navigate(Screen.SessionDetail.createRoute(sessionId))
+                },
                 onBack = { navController.popBackStack() }
             )
         }
@@ -78,7 +81,8 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             val playerDetailViewModel = hiltViewModel<PlayerDetailViewModel>()
             PlayerDetailScreen(
                 viewModel = playerDetailViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onSessionClick = { id -> navController.navigate(Screen.SessionDetail.createRoute(id)) }
             )
         }
     }

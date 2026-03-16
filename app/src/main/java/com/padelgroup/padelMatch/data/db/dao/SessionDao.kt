@@ -1,6 +1,9 @@
 package com.padelgroup.padelMatch.data.db.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.padelgroup.padelMatch.data.db.entity.SessionEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
 import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
@@ -48,7 +51,7 @@ interface SessionDao {
     suspend fun getPlayerWinRatioHistory(playerId: Long): List<Float>
 
     @Query("""
-        SELECT s.date AS date, sp.winRatio AS winRatio FROM session_players sp
+        SELECT s.id AS sessionId, s.date AS date, sp.winRatio AS winRatio FROM session_players sp
         JOIN sessions s ON s.id = sp.sessionId
         WHERE sp.playerId = :playerId
         ORDER BY s.date ASC

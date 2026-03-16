@@ -23,7 +23,7 @@ The app SHALL allow the user to select between 4 and 7 players for a new match s
 #### Scenario: Valid selection
 
 - **WHEN** the user selects between 4 and 7 players
-- **THEN** a "Crear Partida" button becomes enabled
+- **THEN** a "Crear partida" button becomes enabled
 
 #### Scenario: Invalid selection
 
@@ -80,7 +80,7 @@ The app SHALL persist the new session to the local database as soon as the user 
 
 #### Scenario: Saving session on confirm
 
-- **WHEN** the user taps "Crear Partida" with a valid player selection
+- **WHEN** the user taps "Crear partida" with a valid player selection
 - **THEN** the session (date = today, players, generated games) is immediately written to the Room database
 - **AND** all `winningPair` values start as `null`
 - **AND** the user is returned to the Match History screen where the new session appears at the top

@@ -2,6 +2,7 @@ package com.padelgroup.padelMatch.ui.newmatch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.repository.NewMatchRepository
 import com.padelgroup.padelMatch.data.repository.PlayerRepository
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 data class NewMatchUiState(
     val players: List<PlayerEntity> = emptyList(),
+    val deletablePlayerIds: Set<Long> = emptySet(),
     val selectedPlayerIds: Set<Long> = emptySet(),
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -31,22 +33,26 @@ data class NewMatchUiState(
 class NewMatchViewModel @Inject constructor(
     private val playerRepository: PlayerRepository,
     private val newMatchRepository: NewMatchRepository,
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val playerDao: PlayerDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewMatchUiState())
     val uiState: StateFlow<NewMatchUiState> = _uiState
 
     private val _todaySessionExists = MutableStateFlow(false)
-    val todaySessionExists: StateFlow<Boolean> = _todaySessionExists
 
-    private val _navEvent = MutableSharedFlow<Unit>()
-    val navEvent: SharedFlow<Unit> = _navEvent
+    private val _navEvent = MutableSharedFlow<Long>()
+    val navEvent: SharedFlow<Long> = _navEvent
 
     init {
         viewModelScope.launch {
             val players = playerRepository.getAllPlayers()
-            _uiState.update { it.copy(players = players) }
+            val deletable = players
+                .filter { playerDao.countGamesForPlayer(it.id) == 0 }
+                .map { it.id }
+                .toSet()
+            _uiState.update { it.copy(players = players, deletablePlayerIds = deletable) }
             val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             val conflict = sessionRepository.sessionExistsForDate(today)
             _todaySessionExists.value = conflict
@@ -78,7 +84,12 @@ class NewMatchViewModel @Inject constructor(
         viewModelScope.launch {
             val id = playerRepository.addPlayer(name)
             val updatedPlayers = playerRepository.getAllPlayers()
-            _uiState.update { it.copy(players = updatedPlayers, newPlayerName = "", selectedPlayerIds = it.selectedPlayerIds + id) }
+            _uiState.update { it.copy(
+                players = updatedPlayers,
+                deletablePlayerIds = it.deletablePlayerIds + id,
+                newPlayerName = "",
+                selectedPlayerIds = it.selectedPlayerIds + id
+            ) }
         }
     }
 
@@ -87,7 +98,11 @@ class NewMatchViewModel @Inject constructor(
             val deleted = playerRepository.deletePlayer(id)
             if (deleted) {
                 val updatedPlayers = playerRepository.getAllPlayers()
-                _uiState.update { it.copy(players = updatedPlayers, selectedPlayerIds = it.selectedPlayerIds - id) }
+                _uiState.update { it.copy(
+                    players = updatedPlayers,
+                    deletablePlayerIds = it.deletablePlayerIds - id,
+                    selectedPlayerIds = it.selectedPlayerIds - id
+                ) }
             } else {
                 _uiState.update { it.copy(error = "Este jugador tiene partidas registradas y no puede eliminarse") }
             }
@@ -112,9 +127,9 @@ class NewMatchViewModel @Inject constructor(
                     games = games,
                     date = state.selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                 )
-            }.onSuccess {
+            }.onSuccess { sessionId ->
                 _uiState.update { it.copy(isSaving = false) }
-                _navEvent.emit(Unit)
+                _navEvent.emit(sessionId)
             }.onFailure { e ->
                 _uiState.update { it.copy(isSaving = false, error = e.message) }
             }

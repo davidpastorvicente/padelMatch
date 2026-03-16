@@ -1,13 +1,36 @@
 package com.padelgroup.padelMatch.ui.statistics
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,7 +52,8 @@ import java.util.Locale
 @Composable
 fun PlayerDetailScreen(
     viewModel: PlayerDetailViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSessionClick: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -67,6 +91,7 @@ fun PlayerDetailScreen(
             is PlayerDetailUiState.Success -> {
                 PlayerDetailContent(
                     data = state.data,
+                    onSessionClick = onSessionClick,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -75,8 +100,8 @@ fun PlayerDetailScreen(
 }
 
 @Composable
-private fun PlayerDetailContent(data: PlayerDetailData, modifier: Modifier = Modifier) {
-    val (badgeBg, badgeFg) = playerColors(data.player.name)
+private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -> Unit, modifier: Modifier = Modifier) {
+    val (badgeBg, _) = playerColors(data.player.name)
     val winPct = (data.winRatio * 100).toInt()
 
     Column(
@@ -120,7 +145,7 @@ private fun PlayerDetailContent(data: PlayerDetailData, modifier: Modifier = Mod
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(thickness = 0.5.dp)
                     data.sessionHistory.reversed().forEach { entry ->
-                        SessionHistoryRow(entry = entry, lineColor = badgeBg)
+                        SessionHistoryRow(entry = entry, onClick = { onSessionClick(entry.sessionId) })
                         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     }
                 }
@@ -159,19 +184,20 @@ private fun StatsRow(labels: List<String>, values: List<String>) {
 }
 
 @Composable
-private fun SessionHistoryRow(entry: PlayerSessionEntry, lineColor: Color) {
+private fun SessionHistoryRow(entry: PlayerSessionEntry, onClick: () -> Unit) {
     val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", Locale("es"))
     val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE
     val dateStr = try {
         LocalDate.parse(entry.date, isoFormatter).format(formatter)
             .replaceFirstChar { it.uppercase() }
-    } catch (e: Exception) { entry.date }
+    } catch (_: Exception) { entry.date }
     val ratioPct = (entry.winRatio * 100).toInt()
     val (badgeColor, textColor) = winRatioBadgeColor(entry.winRatio)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -220,7 +246,7 @@ private fun PlayerWinRatioChart(
 
     // Compute time-proportional X positions
     val dates = history.map {
-        try { LocalDate.parse(it.date, isoFormatter) } catch (e: Exception) { LocalDate.now() }
+        try { LocalDate.parse(it.date, isoFormatter) } catch (_: Exception) { LocalDate.now() }
     }
     val minEpoch = dates.first().toEpochDay()
     val maxEpoch = dates.last().toEpochDay()

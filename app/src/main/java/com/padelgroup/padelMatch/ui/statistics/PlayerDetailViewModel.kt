@@ -21,8 +21,6 @@ data class PlayerDetailData(
     val losses: Int,
     val winRatio: Float,
     val sessionsAttended: Int,
-    val avgWinRatioPerSession: Float,
-    val longestWinStreak: Int,
     val sessionHistory: List<PlayerSessionEntry>
 )
 
@@ -57,9 +55,6 @@ class PlayerDetailViewModel @Inject constructor(
             val losses = totalGames - wins
             val sessionHistory = statisticsRepository.getPlayerSessionHistory(playerId)
             val sessionsAttended = sessionHistory.size
-            val avgWinRatioPerSession = if (sessionsAttended > 0)
-                sessionHistory.map { it.winRatio }.average().toFloat() else 0f
-            val longestWinStreak = longestStreak(sessionHistory)
             _uiState.value = PlayerDetailUiState.Success(
                 PlayerDetailData(
                     player = player,
@@ -68,21 +63,11 @@ class PlayerDetailViewModel @Inject constructor(
                     losses = losses,
                     winRatio = if (totalGames > 0) wins.toFloat() / totalGames else 0f,
                     sessionsAttended = sessionsAttended,
-                    avgWinRatioPerSession = avgWinRatioPerSession,
-                    longestWinStreak = longestWinStreak,
                     sessionHistory = sessionHistory
                 )
             )
         }
     }
 
-    private fun longestStreak(history: List<PlayerSessionEntry>): Int {
-        var max = 0
-        var current = 0
-        for (entry in history) {
-            if (entry.winRatio >= 0.5f) { current++; if (current > max) max = current }
-            else current = 0
-        }
-        return max
-    }
 }
+

@@ -3,10 +3,10 @@ package com.padelgroup.padelMatch.di
 import android.content.Context
 import androidx.room.Room
 import com.padelgroup.padelMatch.data.db.AppDatabase
+import com.padelgroup.padelMatch.data.db.MIGRATION_1_2
 import com.padelgroup.padelMatch.data.db.dao.GameDao
 import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.dao.SessionDao
-import com.padelgroup.padelMatch.data.db.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
