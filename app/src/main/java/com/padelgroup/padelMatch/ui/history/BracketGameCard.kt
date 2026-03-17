@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -109,54 +110,44 @@ private fun TeamPanel(
     val textColor = if (isWinner) MaterialTheme.colorScheme.onPrimaryContainer
                     else MaterialTheme.colorScheme.onSurfaceVariant
     val weight = if (isWinner) FontWeight.Bold else FontWeight.Normal
-    val textAlign = if (alignEnd) TextAlign.End else TextAlign.Start
 
     Surface(
         color = bgColor,
         modifier = modifier
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = if (alignEnd) Arrangement.End else Arrangement.Start
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (!alignEnd && isWinner) {
-                Text(
-                    text = "🏆",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(end = 6.dp)
-                )
-            }
-
-            Column(
-                horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start
-            ) {
-                Text(
-                    text = player1,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = weight,
-                    color = textColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = textAlign
-                )
-                Text(
-                    text = player2,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = weight,
-                    color = textColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = textAlign
-                )
-            }
-
-            if (alignEnd && isWinner) {
-                Text(
-                    text = "🏆",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 6.dp)
-                )
+            if (alignEnd) {
+                // Right panel: trophy on far left, names on far right
+                if (isWinner) {
+                    Text(
+                        text = "🏆",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    Spacer(Modifier)
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(text = player1, style = MaterialTheme.typography.bodySmall, fontWeight = weight, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End)
+                    Text(text = player2, style = MaterialTheme.typography.bodySmall, fontWeight = weight, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End)
+                }
+            } else {
+                // Left panel: names on far left, trophy on far right
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text(text = player1, style = MaterialTheme.typography.bodySmall, fontWeight = weight, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Start)
+                    Text(text = player2, style = MaterialTheme.typography.bodySmall, fontWeight = weight, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Start)
+                }
+                if (isWinner) {
+                    Text(
+                        text = "🏆",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
