@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -127,7 +128,7 @@ private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -
         }
 
         // Chart + session list
-        if (data.sessionHistory.size >= 2) {
+        if (data.sessionHistory.isNotEmpty()) {
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -137,15 +138,19 @@ private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.height(12.dp))
-                    PlayerWinRatioChart(
-                        history = data.sessionHistory,
-                        lineColor = badgeBg,
-                        modifier = Modifier.fillMaxWidth().height(160.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
+                    if (data.sessionHistory.size >= 2) {
+                        PlayerWinRatioChart(
+                            history = data.sessionHistory,
+                            lineColor = badgeBg,
+                            modifier = Modifier.fillMaxWidth().height(160.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
                     HorizontalDivider(thickness = 0.5.dp)
-                    data.sessionHistory.reversed().forEach { entry ->
-                        SessionHistoryRow(entry = entry, onClick = { onSessionClick(entry.sessionId) })
+                    val reversedHistory = remember(data.sessionHistory) { data.sessionHistory.reversed() }
+                    reversedHistory.forEach { entry ->
+                        val onRowClick = remember(entry.sessionId) { { onSessionClick(entry.sessionId) } }
+                        SessionHistoryRow(entry = entry, onClick = onRowClick)
                         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     }
                 }
@@ -185,14 +190,15 @@ private fun StatsRow(labels: List<String>, values: List<String>) {
 
 @Composable
 private fun SessionHistoryRow(entry: PlayerSessionEntry, onClick: () -> Unit) {
-    val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", Locale("es"))
-    val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-    val dateStr = try {
-        LocalDate.parse(entry.date, isoFormatter).format(formatter)
-            .replaceFirstChar { it.uppercase() }
-    } catch (_: Exception) { entry.date }
-    val ratioPct = (entry.winRatio * 100).toInt()
-    val (badgeColor, textColor) = winRatioBadgeColor(entry.winRatio)
+    val dateStr = remember(entry.date) {
+        val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", Locale("es"))
+        try {
+            LocalDate.parse(entry.date, DateTimeFormatter.ISO_LOCAL_DATE).format(formatter)
+                .replaceFirstChar { it.uppercase() }
+        } catch (_: Exception) { entry.date }
+    }
+    val ratioPct = remember(entry.winRatio) { (entry.winRatio * 100).toInt() }
+    val (badgeColor, textColor) = remember(entry.winRatio) { winRatioBadgeColor(entry.winRatio) }
 
     Row(
         modifier = Modifier
@@ -222,10 +228,15 @@ private fun SessionHistoryRow(entry: PlayerSessionEntry, onClick: () -> Unit) {
 }
 
 private fun winRatioBadgeColor(ratio: Float): Pair<Color, Color> {
-    val red = Color(0xFFEF5350)    // Material Red 400
-    val orange = Color(0xFFFFA726) // Material Orange 400
-    val green = Color(0xFF66BB6A)  // Material Green 400
-    val bg = if (ratio < 0.5f) lerp(red, orange, ratio * 2f) else lerp(orange, green, (ratio - 0.5f) * 2f)
+    val red = Color(0xFFEF5350)        // Material Red 400 — 0%
+    val orange = Color(0xFFFFA726)     // Material Orange 400 — 40%
+    val lightGreen = Color(0xFFA5D6A7) // Material Green 200 — 50%
+    val darkGreen = Color(0xFF2E7D32)  // Material Green 800 — 100%
+    val bg = when {
+        ratio < 0.3f -> lerp(red, orange, ratio / 0.3f)
+        ratio < 0.5f -> lerp(orange, lightGreen, (ratio - 0.3f) / 0.2f)
+        else -> lerp(lightGreen, darkGreen, (ratio - 0.5f) * 2f)
+    }
     return Pair(bg, Color.White)
 }
 
@@ -236,22 +247,37 @@ private fun PlayerWinRatioChart(
     modifier: Modifier = Modifier
 ) {
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-    val darkerLineColor = Color(
-        red = lineColor.red * 0.65f,
-        green = lineColor.green * 0.65f,
-        blue = lineColor.blue * 0.65f,
-        alpha = 1f
-    )
-
-    // Compute time-proportional X positions
-    val dates = history.map {
-        try { LocalDate.parse(it.date, isoFormatter) } catch (_: Exception) { LocalDate.now() }
+    val darkerLineColor = remember(lineColor) {
+        Color(
+            red = lineColor.red * 0.65f,
+            green = lineColor.green * 0.65f,
+            blue = lineColor.blue * 0.65f,
+            alpha = 1f
+        )
     }
-    val minEpoch = dates.first().toEpochDay()
-    val maxEpoch = dates.last().toEpochDay()
-    val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
-    val xFractions = dates.map { (it.toEpochDay() - minEpoch) / totalDays }
+
+    val xFractions = remember(history) {
+        val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
+        val dates = history.map {
+            try { LocalDate.parse(it.date, isoFmt) } catch (_: Exception) { LocalDate.now() }
+        }
+        val minEpoch = dates.first().toEpochDay()
+        val maxEpoch = dates.last().toEpochDay()
+        val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
+        dates.map { (it.toEpochDay() - minEpoch) / totalDays }
+    }
+
+    val axisColor = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.7f).toArgb() }
+    val axisPaint = remember(axisColor) {
+        android.graphics.Paint().apply {
+            textSize = 30f
+            color = axisColor
+            textAlign = android.graphics.Paint.Align.RIGHT
+        }
+    }
+
+    val gridColorNormal = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.15f) }
+    val gridColorMid = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.3f) }
 
     Canvas(modifier = modifier) {
         val w = size.width
@@ -267,18 +293,12 @@ private fun PlayerWinRatioChart(
         fun xPos(i: Int) = paddingLeft + xFractions[i] * chartW
         fun yPos(i: Int) = paddingTop + chartH - history[i].winRatio * chartH
 
-        val axisPaint = android.graphics.Paint().apply {
-            textSize = 30f
-            color = onSurfaceVariant.copy(alpha = 0.7f).toArgb()
-            textAlign = android.graphics.Paint.Align.RIGHT
-        }
-
         // Y-axis grid lines and labels at 0, 25, 50, 75, 100%
         listOf(0, 25, 50, 75, 100).forEach { pct ->
             val ratio = pct / 100f
             val y = paddingTop + chartH - ratio * chartH
             drawLine(
-                color = onSurfaceVariant.copy(alpha = if (pct == 50) 0.3f else 0.15f),
+                color = if (pct == 50) gridColorMid else gridColorNormal,
                 start = Offset(paddingLeft, y),
                 end = Offset(w - paddingRight, y),
                 strokeWidth = if (pct == 50) 1.5f else 1f,

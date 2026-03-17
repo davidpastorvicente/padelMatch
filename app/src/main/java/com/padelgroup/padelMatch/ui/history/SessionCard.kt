@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,12 +39,13 @@ fun SessionCard(session: SessionWithDetails, onClick: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+            val sortedPlayers = remember(session.players) { session.players.sortedBy { it.playerName } }
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                session.players.forEach { player ->
-                    val (bg, fg) = playerColors(player.playerName)
+                sortedPlayers.forEach { player ->
+                    val (bg, fg) = remember(player.playerName) { playerColors(player.playerName) }
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         color = bg,

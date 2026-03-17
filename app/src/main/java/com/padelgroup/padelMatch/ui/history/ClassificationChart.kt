@@ -10,6 +10,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -19,15 +20,17 @@ import com.padelgroup.padelMatch.ui.theme.playerColors
 
 @Composable
 fun ClassificationChart(players: List<SessionPlayerWithName>) {
-    val sorted = players.sortedWith(
-        compareByDescending<SessionPlayerWithName> { it.winRatio }
-            .thenBy { it.playerName }
-    )
+    val sorted = remember(players) {
+        players.sortedWith(
+            compareByDescending<SessionPlayerWithName> { it.winRatio }
+                .thenBy { it.playerName }
+        )
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         sorted.forEach { player ->
-            val (bg, fg) = playerColors(player.playerName)
-            val pct = (player.winRatio * 100).toInt()
+            val (bg, fg) = remember(player.playerName) { playerColors(player.playerName) }
+            val pct = remember(player.winRatio) { (player.winRatio * 100).toInt() }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

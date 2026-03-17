@@ -24,15 +24,15 @@ class StatisticsRepository @Inject constructor(
             val wins = gameDao.countWinsForPlayer(player.id)
             val losses = totalGames - wins
             val winRatio = wins.toFloat() / totalGames
-            val history = sessionDao.getPlayerWinRatioHistory(player.id)
-            val sessionsAttended = sessionDao.getPlayerSessionHistory(player.id).size
+            val sessionHistory = sessionDao.getPlayerSessionHistory(player.id)
+            val sessionsAttended = sessionHistory.size
             PlayerStats(
                 player = player,
                 totalGames = totalGames,
                 wins = wins,
                 losses = losses,
                 winRatio = winRatio,
-                history = history,
+                history = sessionHistory,
                 sessionsAttended = sessionsAttended
             )
         }.sortedByDescending { it.winRatio }

@@ -8,6 +8,6 @@ data class PlayerStats(
     val wins: Int,
     val losses: Int,
     val winRatio: Float,
-    val history: List<Float>,
+    val history: List<PlayerSessionEntry>,
     val sessionsAttended: Int
 )

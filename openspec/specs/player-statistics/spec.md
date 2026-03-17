@@ -30,18 +30,19 @@ The statistics screen SHALL display one card per player, sorted by overall win r
 
 ### Requirement: Win-Ratio Trend Spark-Line
 
-Each player card SHALL include a small trend chart showing the player's win ratio per session over their last 10 sessions.
+Each player card SHALL include a small trend chart showing the player's win ratio per session, styled consistently with the player detail chart.
 
 #### Scenario: Trend displayed
 
 - **WHEN** a player has attended at least 2 sessions
 - **THEN** a compact polyline spark-line is drawn inside the card
-- **AND** the horizontal axis represents sessions (oldest left → newest right, capped at last 10)
+- **AND** the horizontal axis is time-proportional (oldest left → newest right, spacing reflects real elapsed time between sessions)
 - **AND** the vertical axis represents win ratio (0.0 to 1.0)
+- **AND** the line uses a darkened version of the player's color (×0.65 brightness), stroke width 7f, with dots (radius 7) and white center dots (radius 3)
 
 #### Scenario: Single session player
 
 - **WHEN** a player has attended only one session
-- **THEN** no spark-line is shown (or a single-point indicator)
+- **THEN** no spark-line is shown
 - **AND** the aggregate stats are still displayed normally
 

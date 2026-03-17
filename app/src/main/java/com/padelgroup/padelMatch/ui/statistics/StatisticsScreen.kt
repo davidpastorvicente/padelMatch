@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,8 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
@@ -49,7 +53,8 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(playerStats, key = { it.player.id }) { stats ->
-                    PlayerStatCard(stats = stats, onClick = { onPlayerClick(stats.player.id) })
+                    val onClick = remember(stats.player.id) { { onPlayerClick(stats.player.id) } }
+                    PlayerStatCard(stats = stats, onClick = onClick)
                 }
                 item { Spacer(Modifier.height(80.dp)) }
             }
@@ -59,8 +64,8 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
 
 @Composable
 fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}) {
-    val (badgeBg, badgeFg) = playerColors(stats.player.name)
-    val winPct = (stats.winRatio * 100).toInt()
+    val (badgeBg, badgeFg) = remember(stats.player.name) { playerColors(stats.player.name) }
+    val winPct = remember(stats.winRatio) { (stats.winRatio * 100).toInt() }
 
     ElevatedCard(
         onClick = onClick,
@@ -123,8 +128,29 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}) {
 }
 
 @Composable
-fun WinRatioSparkLine(history: List<Float>, lineColor: Color, modifier: Modifier = Modifier) {
+fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modifier: Modifier = Modifier) {
     if (history.size < 2) return
+
+    val darkerLineColor = remember(lineColor) {
+        Color(
+            red = lineColor.red * 0.65f,
+            green = lineColor.green * 0.65f,
+            blue = lineColor.blue * 0.65f,
+            alpha = 1f
+        )
+    }
+
+    val xFractions = remember(history) {
+        val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
+        val dates = history.map {
+            try { LocalDate.parse(it.date, isoFmt) } catch (_: Exception) { LocalDate.now() }
+        }
+        val minEpoch = dates.first().toEpochDay()
+        val maxEpoch = dates.last().toEpochDay()
+        val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
+        dates.map { (it.toEpochDay() - minEpoch) / totalDays }
+    }
+
     Canvas(
         modifier = modifier
             .fillMaxWidth()
@@ -132,14 +158,22 @@ fun WinRatioSparkLine(history: List<Float>, lineColor: Color, modifier: Modifier
     ) {
         val w = size.width
         val h = size.height
-        val stepX = w / (history.size - 1)
-        for (i in 0 until history.size - 1) {
+        val n = history.size
+
+        fun xPos(i: Int) = xFractions[i] * w
+        fun yPos(i: Int) = h - history[i].winRatio * h
+
+        for (i in 0 until n - 1) {
             drawLine(
-                color = lineColor,
-                start = Offset(i * stepX, h - history[i] * h),
-                end = Offset((i + 1) * stepX, h - history[i + 1] * h),
-                strokeWidth = 4f
+                color = darkerLineColor,
+                start = Offset(xPos(i), yPos(i)),
+                end = Offset(xPos(i + 1), yPos(i + 1)),
+                strokeWidth = 7f
             )
+        }
+        for (i in 0 until n) {
+            drawCircle(color = darkerLineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
+            drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
         }
     }
 }

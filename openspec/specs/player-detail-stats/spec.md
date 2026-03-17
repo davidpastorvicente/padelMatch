@@ -34,15 +34,15 @@ The app SHALL provide a dedicated screen showing full statistics for a single pl
 
 #### Scenario: Session history list displayed
 
-- **WHEN** the player has attended at least 2 sessions
-- **THEN** below the chart, each session is listed with:
+- **WHEN** the player has attended at least 1 session
+- **THEN** below the chart (if shown), each session is listed with:
   - Full date (e.g. "Lunes, 15 de marzo de 2026")
-  - Win ratio badge colored on a red→orange→green gradient
+  - Win ratio badge colored on a red→orange→light green→dark green gradient (0%=red, 30%=orange, 50%=light green, 100%=dark green)
 
 #### Scenario: Single session player on detail screen
 
 - **WHEN** the player has attended only one session
-- **THEN** the chart and session list are not shown
+- **THEN** the chart is not shown but the session list is still displayed
 - **AND** aggregate stats are displayed normally
 
 #### Scenario: Back navigation from detail screen

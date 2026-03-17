@@ -111,7 +111,7 @@ fun SessionDetailScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        s.players.forEach { player ->
+                        s.players.sortedBy { it.playerName }.forEach { player ->
                             val (bg, fg) = playerColors(player.playerName)
                             Surface(
                                 shape = MaterialTheme.shapes.small,
