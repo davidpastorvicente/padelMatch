@@ -279,13 +279,16 @@ private fun CombinedWinRatioChart(
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
+                val fmN = namePaint.fontMetrics
+                val fmD = datePaint.fontMetrics
+                val fmR = ratioPaint.fontMetrics
                 val ratioStr = "${(entry.winRatio * 100).roundToInt()}%"
                 val tooltipW = maxOf(
                     namePaint.measureText(line.stats.player.name),
                     datePaint.measureText(dateStr),
                     ratioPaint.measureText(ratioStr)
                 ) + hPad * 2
-                val tooltipH = hPad + namePaint.textSize + lineSpacing + datePaint.textSize + lineSpacing + ratioPaint.textSize + hPad
+                val tooltipH = hPad + (-fmN.ascent) + fmN.descent + lineSpacing + (-fmD.ascent) + fmD.descent + lineSpacing + (-fmR.ascent) + fmR.descent + hPad
                 val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
                 val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
                 val bgPaint = android.graphics.Paint().apply {
@@ -297,9 +300,9 @@ private fun CombinedWinRatioChart(
                     14f, 14f, bgPaint
                 )
                 val centerX = tooltipX + tooltipW / 2
-                val line1Y = tooltipY + hPad + namePaint.textSize
-                val line2Y = line1Y + lineSpacing + datePaint.textSize
-                val line3Y = line2Y + lineSpacing + ratioPaint.textSize
+                val line1Y = tooltipY + hPad + (-fmN.ascent)
+                val line2Y = line1Y + fmN.descent + lineSpacing + (-fmD.ascent)
+                val line3Y = line2Y + fmD.descent + lineSpacing + (-fmR.ascent)
                 drawText(line.stats.player.name, centerX, line1Y, namePaint)
                 drawText(dateStr, centerX, line2Y, datePaint)
                 drawText(ratioStr, centerX, line3Y, ratioPaint)

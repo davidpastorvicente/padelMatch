@@ -389,12 +389,14 @@ private fun PlayerWinRatioChart(
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
+                val fm1 = datePaint.fontMetrics
+                val fm2 = ratioPaint.fontMetrics
                 val ratioStr = "${(history[idx].winRatio * 100).roundToInt()}%"
                 val tooltipW = maxOf(
                     datePaint.measureText(formattedDates[idx]),
                     ratioPaint.measureText(ratioStr)
                 ) + hPad * 2
-                val tooltipH = hPad + datePaint.textSize + lineSpacing + ratioPaint.textSize + hPad
+                val tooltipH = hPad + (-fm1.ascent) + fm1.descent + lineSpacing + (-fm2.ascent) + fm2.descent + hPad
                 val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
                 val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
                 val bgPaint = android.graphics.Paint().apply {
@@ -406,8 +408,8 @@ private fun PlayerWinRatioChart(
                     14f, 14f, bgPaint
                 )
                 val centerX = tooltipX + tooltipW / 2
-                val line1Y = tooltipY + hPad + datePaint.textSize
-                val line2Y = line1Y + lineSpacing + ratioPaint.textSize
+                val line1Y = tooltipY + hPad + (-fm1.ascent)
+                val line2Y = line1Y + fm1.descent + lineSpacing + (-fm2.ascent)
                 drawText(formattedDates[idx], centerX, line1Y, datePaint)
                 drawText(ratioStr, centerX, line2Y, ratioPaint)
             }
