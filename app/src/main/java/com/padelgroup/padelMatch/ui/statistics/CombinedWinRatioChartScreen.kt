@@ -257,6 +257,7 @@ private fun CombinedWinRatioChart(
 
             drawContext.canvas.nativeCanvas.apply {
                 val hPad = 24f
+                val lineSpacing = 8f
                 val margin = 14f
                 val namePaint = android.graphics.Paint().apply {
                     color = line.lineColor.toArgb()
@@ -284,7 +285,7 @@ private fun CombinedWinRatioChart(
                     datePaint.measureText(dateStr),
                     ratioPaint.measureText(ratioStr)
                 ) + hPad * 2
-                val tooltipH = 110f
+                val tooltipH = hPad + namePaint.textSize + lineSpacing + datePaint.textSize + lineSpacing + ratioPaint.textSize + hPad
                 val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
                 val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
                 val bgPaint = android.graphics.Paint().apply {
@@ -296,9 +297,12 @@ private fun CombinedWinRatioChart(
                     14f, 14f, bgPaint
                 )
                 val centerX = tooltipX + tooltipW / 2
-                drawText(line.stats.player.name, centerX, tooltipY + 30f, namePaint)
-                drawText(dateStr, centerX, tooltipY + 60f, datePaint)
-                drawText(ratioStr, centerX, tooltipY + 96f, ratioPaint)
+                val line1Y = tooltipY + hPad + namePaint.textSize
+                val line2Y = line1Y + lineSpacing + datePaint.textSize
+                val line3Y = line2Y + lineSpacing + ratioPaint.textSize
+                drawText(line.stats.player.name, centerX, line1Y, namePaint)
+                drawText(dateStr, centerX, line2Y, datePaint)
+                drawText(ratioStr, centerX, line3Y, ratioPaint)
             }
         }
     }

@@ -374,6 +374,7 @@ private fun PlayerWinRatioChart(
 
             drawContext.canvas.nativeCanvas.apply {
                 val hPad = 24f
+                val lineSpacing = 8f
                 val margin = 14f
                 val datePaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.argb(200, 255, 255, 255)
@@ -393,7 +394,7 @@ private fun PlayerWinRatioChart(
                     datePaint.measureText(formattedDates[idx]),
                     ratioPaint.measureText(ratioStr)
                 ) + hPad * 2
-                val tooltipH = 82f
+                val tooltipH = hPad + datePaint.textSize + lineSpacing + ratioPaint.textSize + hPad
                 val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
                 val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
                 val bgPaint = android.graphics.Paint().apply {
@@ -405,8 +406,10 @@ private fun PlayerWinRatioChart(
                     14f, 14f, bgPaint
                 )
                 val centerX = tooltipX + tooltipW / 2
-                drawText(formattedDates[idx], centerX, tooltipY + 28f, datePaint)
-                drawText(ratioStr, centerX, tooltipY + 64f, ratioPaint)
+                val line1Y = tooltipY + hPad + datePaint.textSize
+                val line2Y = line1Y + lineSpacing + ratioPaint.textSize
+                drawText(formattedDates[idx], centerX, line1Y, datePaint)
+                drawText(ratioStr, centerX, line2Y, ratioPaint)
             }
         }
     }
