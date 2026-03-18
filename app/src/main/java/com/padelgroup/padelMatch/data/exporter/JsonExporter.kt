@@ -50,7 +50,7 @@ class JsonExporter @Inject constructor(
             sessions = jsonSessions
         )
 
-        val file = File(context.cacheDir, "padelMatch_export.json")
+        val file = File(context.cacheDir, "padelMatch.json")
         file.writeText(json.encodeToString(PadelMatchExport.serializer(), export))
 
         return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
