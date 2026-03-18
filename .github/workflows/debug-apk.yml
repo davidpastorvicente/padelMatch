@@ -30,7 +30,9 @@ jobs:
       - name: Setup debug keystore
         run: |
           mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/debug.keystore
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode --ignore-garbage > ~/.android/debug.keystore
+          echo "Keystore SHA256:"
+          keytool -list -v -keystore ~/.android/debug.keystore -storepass android 2>/dev/null | grep "SHA256"
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --build-cache
