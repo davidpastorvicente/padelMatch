@@ -107,7 +107,7 @@ class MatchHistoryViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { jsonExporter.export() }
                 .onSuccess { uri -> _dataEvents.emit(DataEvent.Share(uri)) }
-                .onFailure { _dataEvents.emit(DataEvent.SnackbarMessage("Error al exportar")) }
+                .onFailure { _dataEvents.emit(DataEvent.ToastMessage("Error al exportar")) }
         }
     }
 
@@ -118,8 +118,8 @@ class MatchHistoryViewModel @Inject constructor(
                     jsonImporter.import(stream, skipExisting = true)
                 }
             }
-            .onSuccess { _dataEvents.emit(DataEvent.SnackbarMessage("Importación completada")) }
-            .onFailure { _dataEvents.emit(DataEvent.SnackbarMessage("Archivo no válido")) }
+            .onSuccess { _dataEvents.emit(DataEvent.ToastMessage("Importación completada")) }
+            .onFailure { _dataEvents.emit(DataEvent.ToastMessage("Archivo no válido")) }
         }
     }
 
@@ -132,7 +132,7 @@ class MatchHistoryViewModel @Inject constructor(
 
     sealed class DataEvent {
         data class Share(val uri: Uri) : DataEvent()
-        data class SnackbarMessage(val text: String) : DataEvent()
+        data class ToastMessage(val text: String) : DataEvent()
         object ScrollToTop : DataEvent()
     }
 }

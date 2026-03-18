@@ -27,6 +27,7 @@ data class EditResultsUiState(
     val pendingDeletes: Set<Long> = emptySet(),
     val isSaving: Boolean = false,
     val isLoading: Boolean = true,
+    val error: String? = null,
     val showAddPicker: Boolean = false,
     val editPickerGameId: Long? = null,
     val deleteConfirmGameId: Long? = null
@@ -196,10 +197,10 @@ class EditResultsViewModel @Inject constructor(
                     gameNumberUpdates = gameNumberUpdates
                 )
             }.onSuccess {
-                _uiState.update { it.copy(isSaving = false) }
+                _uiState.update { it.copy(isSaving = false, error = null) }
                 _navBack.emit(Unit)
-            }.onFailure {
-                _uiState.update { it.copy(isSaving = false) }
+            }.onFailure { e ->
+                _uiState.update { it.copy(isSaving = false, error = e.message ?: "Error al guardar") }
             }
         }
     }

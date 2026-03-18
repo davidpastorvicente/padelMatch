@@ -1,13 +1,14 @@
 package com.padelgroup.padelMatch.ui.navigation
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -17,9 +18,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -30,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +62,6 @@ fun HomeScreen(
     val selectedDate by historyViewModel.selectedDate.collectAsState()
     val sessionDates by historyViewModel.sessionDates.collectAsState()
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { historyViewModel.importFromUri(it) }
@@ -82,8 +78,8 @@ fun HomeScreen(
                     }
                     context.startActivity(Intent.createChooser(intent, "Exportar PadelMatch"))
                 }
-                is MatchHistoryViewModel.DataEvent.SnackbarMessage -> {
-                    snackbarHostState.showSnackbar(message = event.text, duration = SnackbarDuration.Short)
+                is MatchHistoryViewModel.DataEvent.ToastMessage -> {
+                    Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
                 }
                 is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
                     // Handled in MatchHistoryScreen
@@ -167,7 +163,7 @@ fun HomeScreen(
                 }
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { }
     ) { innerPadding ->
         NavHost(
             navController = navController,

@@ -71,7 +71,7 @@ fun MatchHistoryScreen(
                 is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
                     listState.animateScrollToItem(0)
                 }
-                else -> {} // Share and SnackbarMessage handled in HomeScreen
+                else -> {} // Share and ToastMessage handled in HomeScreen
             }
         }
     }

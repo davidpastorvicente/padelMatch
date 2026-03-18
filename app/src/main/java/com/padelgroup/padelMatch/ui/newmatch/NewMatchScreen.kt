@@ -59,6 +59,12 @@ fun NewMatchScreen(
         }
     }
 
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
+
     if (showDatePicker.value) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = state.selectedDate
