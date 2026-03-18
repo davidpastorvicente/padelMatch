@@ -373,15 +373,8 @@ private fun PlayerWinRatioChart(
             drawCircle(color = Color.White, radius = 4f, center = Offset(tx, ty))
 
             drawContext.canvas.nativeCanvas.apply {
-                val tooltipW = 220f
-                val tooltipH = 82f
+                val hPad = 24f
                 val margin = 14f
-                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
-                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
-                val bgPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.argb(230, 30, 30, 30)
-                    isAntiAlias = true
-                }
                 val datePaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.argb(200, 255, 255, 255)
                     textSize = 28f
@@ -395,16 +388,25 @@ private fun PlayerWinRatioChart(
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
+                val ratioStr = "${(history[idx].winRatio * 100).roundToInt()}%"
+                val tooltipW = maxOf(
+                    datePaint.measureText(formattedDates[idx]),
+                    ratioPaint.measureText(ratioStr)
+                ) + hPad * 2
+                val tooltipH = 82f
+                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
+                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
+                val bgPaint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.argb(230, 30, 30, 30)
+                    isAntiAlias = true
+                }
                 drawRoundRect(
                     android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
                     14f, 14f, bgPaint
                 )
                 val centerX = tooltipX + tooltipW / 2
                 drawText(formattedDates[idx], centerX, tooltipY + 28f, datePaint)
-                drawText(
-                    "${(history[idx].winRatio * 100).roundToInt()}%",
-                    centerX, tooltipY + 64f, ratioPaint
-                )
+                drawText(ratioStr, centerX, tooltipY + 64f, ratioPaint)
             }
         }
     }

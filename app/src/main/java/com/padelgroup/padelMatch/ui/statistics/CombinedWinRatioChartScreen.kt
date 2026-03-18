@@ -256,15 +256,8 @@ private fun CombinedWinRatioChart(
             } catch (_: Exception) { entry.date }
 
             drawContext.canvas.nativeCanvas.apply {
-                val tooltipW = 220f
-                val tooltipH = 110f
+                val hPad = 24f
                 val margin = 14f
-                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
-                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
-                val bgPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.argb(230, 30, 30, 30)
-                    isAntiAlias = true
-                }
                 val namePaint = android.graphics.Paint().apply {
                     color = line.lineColor.toArgb()
                     textSize = 30f
@@ -285,6 +278,19 @@ private fun CombinedWinRatioChart(
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
+                val ratioStr = "${(entry.winRatio * 100).roundToInt()}%"
+                val tooltipW = maxOf(
+                    namePaint.measureText(line.stats.player.name),
+                    datePaint.measureText(dateStr),
+                    ratioPaint.measureText(ratioStr)
+                ) + hPad * 2
+                val tooltipH = 110f
+                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
+                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
+                val bgPaint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.argb(230, 30, 30, 30)
+                    isAntiAlias = true
+                }
                 drawRoundRect(
                     android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
                     14f, 14f, bgPaint
@@ -292,10 +298,7 @@ private fun CombinedWinRatioChart(
                 val centerX = tooltipX + tooltipW / 2
                 drawText(line.stats.player.name, centerX, tooltipY + 30f, namePaint)
                 drawText(dateStr, centerX, tooltipY + 60f, datePaint)
-                drawText(
-                    "${(entry.winRatio * 100).roundToInt()}%",
-                    centerX, tooltipY + 96f, ratioPaint
-                )
+                drawText(ratioStr, centerX, tooltipY + 96f, ratioPaint)
             }
         }
     }
