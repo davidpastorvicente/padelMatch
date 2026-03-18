@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -59,8 +60,8 @@ fun EditResultsScreen(
     state.deleteConfirmGameId?.let { gameId ->
         AlertDialog(
             onDismissRequest = viewModel::cancelDelete,
-            title = { Text("Eliminar partido") },
-            text = { Text("¿Eliminar este partido?") },
+            title = { Text("Eliminar set") },
+            text = { Text("Esta acción no se puede deshacer") },
             confirmButton = {
                 TextButton(onClick = { viewModel.confirmDelete(gameId) }) {
                     Text("Eliminar", color = MaterialTheme.colorScheme.error)
@@ -99,7 +100,7 @@ fun EditResultsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Editar") },
+                title = { Text("Editar sets") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -130,7 +131,7 @@ fun EditResultsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(state.games, key = { it.game.id }) { editable ->
-                        ReorderableItem(reorderState, key = editable.game.id) { isDragging ->
+                        ReorderableItem(reorderState, key = editable.game.id) { _ ->
                             val gameId = editable.game.id
                             val currentWinner = state.winnerOverrides[gameId]
                             val displayGame = editable.game.copy(winningPair = currentWinner)
@@ -159,11 +160,13 @@ fun EditResultsScreen(
                     item {
                         OutlinedButton(
                             onClick = viewModel::showAddPicker,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentWidth(Alignment.CenterHorizontally)
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Añadir partido")
+                            Text("Añadir set")
                         }
                     }
                 }

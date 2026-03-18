@@ -59,32 +59,17 @@ fun BracketGameCard(
                     .then(if (onTeamClick != null) Modifier.clickable { onTeamClick(1) } else Modifier)
             )
 
-            // Centre column — game number + optional edit/delete icons
-            Column(
-                modifier = Modifier.width(48.dp).fillMaxHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "${game.gameNumber}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                if (onEdit != null) {
-                    IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                if (onDelete != null) {
-                    IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
-                    }
-                }
-            }
+            // Centre — game number only
+            Text(
+                text = "${game.gameNumber}",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(32.dp)
+            )
 
-            // Team B panel (right)
+            // Team B panel (middle)
             TeamPanel(
                 player1 = game.pair2Player1,
                 player2 = game.pair2Player2,
@@ -93,6 +78,25 @@ fun BracketGameCard(
                 modifier = Modifier.weight(1f).fillMaxHeight()
                     .then(if (onTeamClick != null) Modifier.clickable { onTeamClick(2) } else Modifier)
             )
+
+            // Action buttons (far right)
+            if (onEdit != null || onDelete != null) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (onEdit != null) {
+                        IconButton(onClick = onEdit, modifier = Modifier.size(40.dp)) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    if (onDelete != null) {
+                        IconButton(onClick = onDelete, modifier = Modifier.size(40.dp)) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -60,7 +60,7 @@ fun SessionDetailScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog.value = false },
             title = { Text("Eliminar partido") },
-            text = { Text("¿Eliminar este partido? Esta acción no se puede deshacer.") },
+            text = { Text("Esta acción no se puede deshacer") },
             confirmButton = {
                 TextButton(onClick = { showDeleteDialog.value = false; viewModel.deleteSession() }) {
                     Text("Eliminar", color = MaterialTheme.colorScheme.error)
