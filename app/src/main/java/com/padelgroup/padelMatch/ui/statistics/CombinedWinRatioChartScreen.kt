@@ -261,7 +261,7 @@ private fun CombinedWinRatioChart(
                 val margin = 14f
                 val namePaint = android.graphics.Paint().apply {
                     color = line.lineColor.toArgb()
-                    textSize = 30f
+                    textSize = 38f
                     isFakeBoldText = true
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
@@ -274,7 +274,7 @@ private fun CombinedWinRatioChart(
                 }
                 val ratioPaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.WHITE
-                    textSize = 30f
+                    textSize = 40f
                     isFakeBoldText = true
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true

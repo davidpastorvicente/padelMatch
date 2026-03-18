@@ -384,7 +384,7 @@ private fun PlayerWinRatioChart(
                 }
                 val ratioPaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.WHITE
-                    textSize = 32f
+                    textSize = 42f
                     isFakeBoldText = true
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
