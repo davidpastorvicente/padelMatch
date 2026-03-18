@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -51,24 +50,24 @@ fun SessionDetailScreen(
 ) {
     val session by viewModel.session.collectAsState()
     val context = LocalContext.current
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    val showDeleteDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.navBack.collect { onBack() }
     }
 
-    if (showDeleteDialog) {
+    if (showDeleteDialog.value) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = { showDeleteDialog.value = false },
             title = { Text("Eliminar partido") },
-            text = { Text("Esta acción no se puede deshacer") },
+            text = { Text("¿Eliminar este partido? Esta acción no se puede deshacer.") },
             confirmButton = {
-                TextButton(onClick = { showDeleteDialog = false; viewModel.deleteSession() }) {
+                TextButton(onClick = { showDeleteDialog.value = false; viewModel.deleteSession() }) {
                     Text("Eliminar", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancelar") }
+                TextButton(onClick = { showDeleteDialog.value = false }) { Text("Cancelar") }
             }
         )
     }
@@ -103,7 +102,7 @@ fun SessionDetailScreen(
                         IconButton(onClick = { onEditResults(s.id) }) {
                             Icon(Icons.Default.Edit, contentDescription = "Editar")
                         }
-                        IconButton(onClick = { showDeleteDialog = true }) {
+                        IconButton(onClick = { showDeleteDialog.value = true }) {
                             Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                         }
                     }
@@ -199,11 +198,11 @@ private fun formatMatchForSharing(session: SessionWithDetails): String {
             val setNum = index + 1
             val pair1 = "${game.pair1Player1} y ${game.pair1Player2}"
             val pair2 = "${game.pair2Player1} y ${game.pair2Player2}"
-            
-            when {
-                game.winningPair == null -> "$setNum. $pair1 vs $pair2"
-                game.winningPair == 1 -> "$setNum. *$pair1* vs $pair2"
-                game.winningPair == 2 -> "$setNum. $pair1 vs *$pair2*"
+
+            when (game.winningPair) {
+                null -> "$setNum. $pair1 vs $pair2"
+                1 -> "$setNum. *$pair1* vs $pair2"
+                2 -> "$setNum. $pair1 vs *$pair2*"
                 else -> "$setNum. $pair1 vs $pair2"
             }
         }.joinToString("\n")

@@ -14,33 +14,31 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverflowMenu(onImport: () -> Unit, onExport: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
     val tooltipState = rememberTooltipState()
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text("Más opciones") } },
         state = tooltipState
     ) {
-        IconButton(onClick = { expanded = true }) {
+        IconButton(onClick = { expanded.value = true }) {
             Icon(Icons.Default.MoreVert, contentDescription = "Más opciones", tint = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+    DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
         DropdownMenuItem(
             text = { Text("Importar") },
-            onClick = { expanded = false; onImport() }
+            onClick = { expanded.value = false; onImport() }
         )
         DropdownMenuItem(
             text = { Text("Exportar") },
-            onClick = { expanded = false; onExport() }
+            onClick = { expanded.value = false; onExport() }
         )
     }
 }

@@ -32,11 +32,11 @@ sealed class MatchHistoryUiState {
 
 @HiltViewModel
 class MatchHistoryViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository,
+    sessionRepository: SessionRepository,
     private val importRepository: ImportRepository,
     private val jsonExporter: JsonExporter,
     private val jsonImporter: JsonImporter,
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _importState = MutableStateFlow<ImportState>(ImportState.Idle)
@@ -57,7 +57,7 @@ class MatchHistoryViewModel @Inject constructor(
             var prevCount = -1
             uiState.collect { state ->
                 val count = (state as? MatchHistoryUiState.Success)?.sessions?.size ?: return@collect
-                if (prevCount >= 0 && count > prevCount) {
+                if (prevCount in 0..<count) {
                     _dataEvents.emit(DataEvent.ScrollToTop)
                 }
                 prevCount = count
