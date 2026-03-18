@@ -31,9 +31,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.android/sdk
-            $ANDROID_HOME/build-tools
-            $ANDROID_HOME/platforms
+            ${{ env.ANDROID_HOME }}/build-tools
+            ${{ env.ANDROID_HOME }}/platforms
+            ${{ env.ANDROID_HOME }}/platform-tools
           key: android-sdk-${{ hashFiles('app/build.gradle.kts', 'gradle/libs.versions.toml') }}
           restore-keys: android-sdk-
 
