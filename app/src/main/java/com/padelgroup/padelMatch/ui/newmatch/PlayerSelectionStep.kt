@@ -131,7 +131,7 @@ fun PlayerSelectionStep(
             enabled = isValid,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Crear partida")
+            Text("Crear partido")
         }
     }
 }

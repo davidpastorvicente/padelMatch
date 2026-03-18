@@ -60,7 +60,6 @@ fun HomeScreen(
     val isHistoryTab = currentRoute == HomeTab.HISTORY.route || currentRoute == null
     val isStatisticsTab = currentRoute == HomeTab.STATISTICS.route
 
-    val todaySessionExists by historyViewModel.todaySessionExists.collectAsState()
     val calendarVisible by historyViewModel.calendarVisible.collectAsState()
     val currentMonth by historyViewModel.currentMonth.collectAsState()
     val selectedDate by historyViewModel.selectedDate.collectAsState()
@@ -85,6 +84,9 @@ fun HomeScreen(
                 }
                 is MatchHistoryViewModel.DataEvent.SnackbarMessage -> {
                     snackbarHostState.showSnackbar(message = event.text, duration = SnackbarDuration.Short)
+                }
+                is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
+                    // Handled in MatchHistoryScreen
                 }
             }
         }
@@ -141,13 +143,9 @@ fun HomeScreen(
         floatingActionButton = {
             if (isHistoryTab) {
                 ExtendedFloatingActionButton(
-                    text = { Text(if (todaySessionExists) "Ya hay partida hoy" else "Nueva partida") },
+                    text = { Text("Nuevo partido") },
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    onClick = { if (!todaySessionExists) onNewMatch() },
-                    containerColor = if (todaySessionExists) MaterialTheme.colorScheme.surfaceVariant
-                    else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (todaySessionExists) MaterialTheme.colorScheme.onSurfaceVariant
-                    else MaterialTheme.colorScheme.onPrimaryContainer
+                    onClick = onNewMatch
                 )
             }
         },

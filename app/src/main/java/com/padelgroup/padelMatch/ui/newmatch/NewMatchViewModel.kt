@@ -104,18 +104,16 @@ class NewMatchViewModel @Inject constructor(
                     selectedPlayerIds = it.selectedPlayerIds - id
                 ) }
             } else {
-                _uiState.update { it.copy(error = "Este jugador tiene partidas registradas y no puede eliminarse") }
+                _uiState.update { it.copy(error = "Este jugador tiene partidos registrados y no puede eliminarse") }
             }
         }
     }
-
-    fun clearError() = _uiState.update { it.copy(error = null) }
 
     fun confirmPlayerSelection() {        val state = _uiState.value
         val selectedPlayers = state.players.filter { it.id in state.selectedPlayerIds }
         if (selectedPlayers.size !in 4..7) return
         if (state.isDateConflict) {
-            _uiState.update { it.copy(error = "Ya existe una partida en esa fecha") }
+            _uiState.update { it.copy(error = "Ya existe un partido en esa fecha") }
             return
         }
         viewModelScope.launch {

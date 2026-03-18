@@ -16,7 +16,7 @@ The app SHALL display all padel sessions in reverse-chronological order on the h
 
 - **WHEN** the user selects a date via the inline calendar panel
 - **THEN** the session list SHALL show only sessions matching that date
-- **AND** if no session exists for that date, the list SHALL show an empty state message "Sin partida ese día"
+- **AND** if no session exists for that date, the list SHALL show an empty state message "Sin partido ese día"
 
 #### Scenario: Bottom navigation
 
@@ -57,7 +57,7 @@ The app SHALL show a friendly empty state when no sessions exist.
 #### Scenario: No sessions in database
 
 - **WHEN** the database contains no sessions
-- **THEN** the home screen shows an illustration and the message "No hay partidas todavía"
+- **THEN** the home screen shows an illustration and the message "No hay partidos todavía"
 - **AND** a call-to-action button to create the first match is displayed
 
 ### Requirement: Session Action Buttons

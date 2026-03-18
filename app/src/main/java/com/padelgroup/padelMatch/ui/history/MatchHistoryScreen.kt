@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -63,6 +64,17 @@ fun MatchHistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val importState by viewModel.importState.collectAsState()
     val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.dataEvents.collect { event ->
+            when (event) {
+                is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
+                    listState.animateScrollToItem(0)
+                }
+                else -> {} // Share and SnackbarMessage handled in HomeScreen
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Inline calendar panel
@@ -103,7 +115,7 @@ fun MatchHistoryScreen(
 
                     if (filteredSessions.isEmpty() && selectedDate != null) {
                         Text(
-                            "Sin partida ese día",
+                            "Sin partido ese día",
                             modifier = Modifier.align(Alignment.Center).padding(16.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -229,19 +241,19 @@ private fun EmptyState(onNewMatch: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Text("🎾", style = MaterialTheme.typography.displayLarge)
         Text(
-            "No hay partidas todavía",
+            "No hay partidos todavía",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
         Text(
-            "Crea tu primera partida para empezar a registrar tus resultados.",
+            "Crea tu primer partido para empezar a registrar tus resultados.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Button(onClick = onNewMatch) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(Modifier.width(8.dp))
-            Text("Nueva partida")
+            Text("Nuevo partido")
         }
     }
 }

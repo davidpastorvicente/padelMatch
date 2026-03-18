@@ -39,7 +39,7 @@ app/src/main/java/com/padelgroup/padelMatch/
 
 ## Domain Terminology
 
-- **Partida / Session**: one match day — one `SessionEntity` per calendar day
+- **Partido / Session**: one match day — one `SessionEntity` per calendar day
 - **Set**: a single bracket game within a session — one `GameEntity` per set
 - **Pair**: two players on one side of a set
 

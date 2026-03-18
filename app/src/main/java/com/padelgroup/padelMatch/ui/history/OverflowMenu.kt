@@ -23,10 +23,11 @@ import androidx.compose.runtime.setValue
 @Composable
 fun OverflowMenu(onImport: () -> Unit, onExport: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    val tooltipState = rememberTooltipState()
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text("Más opciones") } },
-        state = rememberTooltipState()
+        state = tooltipState
     ) {
         IconButton(onClick = { expanded = true }) {
             Icon(Icons.Default.MoreVert, contentDescription = "Más opciones", tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -34,11 +35,11 @@ fun OverflowMenu(onImport: () -> Unit, onExport: () -> Unit) {
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
         DropdownMenuItem(
-            text = { Text("Importar datos") },
+            text = { Text("Importar") },
             onClick = { expanded = false; onImport() }
         )
         DropdownMenuItem(
-            text = { Text("Exportar datos") },
+            text = { Text("Exportar") },
             onClick = { expanded = false; onExport() }
         )
     }

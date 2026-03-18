@@ -54,7 +54,7 @@ fun NewMatchScreen(
 
     LaunchedEffect(Unit) {
         viewModel.navEvent.collect { sessionId ->
-            Toast.makeText(context, "Partida creada correctamente", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Partido creado correctamente", Toast.LENGTH_SHORT).show()
             onSaved(sessionId)
         }
     }
@@ -88,7 +88,7 @@ fun NewMatchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva partida") },
+                title = { Text("Nuevo partido") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -120,14 +120,14 @@ fun NewMatchScreen(
                                 tint = if (state.isDateConflict) MaterialTheme.colorScheme.error
                                        else MaterialTheme.colorScheme.primary)
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Fecha de la partida",
+                                Text("Fecha del partido",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(dateLabel,
                                     style = MaterialTheme.typography.bodyLarge)
                             }
                             if (state.isDateConflict) {
-                                Text("Ya existe una partida",
+                                Text("Ya existe un partido",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.error)
                             }

@@ -20,9 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 sealed class MatchHistoryUiState {
@@ -54,12 +52,18 @@ class MatchHistoryViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MatchHistoryUiState.Loading)
 
-    val todaySessionExists: StateFlow<Boolean> = sessionRepository.getAllSessionsFlow()
-        .map { sessions ->
-            val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-            sessions.any { it.date == today }
+    init {
+        viewModelScope.launch {
+            var prevCount = -1
+            uiState.collect { state ->
+                val count = (state as? MatchHistoryUiState.Success)?.sessions?.size ?: return@collect
+                if (prevCount >= 0 && count > prevCount) {
+                    _dataEvents.emit(DataEvent.ScrollToTop)
+                }
+                prevCount = count
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    }
 
     // Calendar state
     private val _calendarVisible = MutableStateFlow(false)
@@ -99,12 +103,6 @@ class MatchHistoryViewModel @Inject constructor(
         }
     }
 
-    fun deleteSession(sessionId: Long) {
-        viewModelScope.launch {
-            sessionRepository.deleteSession(sessionId)
-        }
-    }
-
     fun exportData() {
         viewModelScope.launch {
             runCatching { jsonExporter.export() }
@@ -135,5 +133,6 @@ class MatchHistoryViewModel @Inject constructor(
     sealed class DataEvent {
         data class Share(val uri: Uri) : DataEvent()
         data class SnackbarMessage(val text: String) : DataEvent()
+        object ScrollToTop : DataEvent()
     }
 }

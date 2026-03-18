@@ -21,7 +21,7 @@ The app SHALL provide a dedicated screen for viewing the full detail of a single
 #### Scenario: Delete action
 
 - **WHEN** the user taps the delete icon in the TopAppBar of `SessionDetailScreen`
-- **THEN** a confirmation dialog is shown ("¿Eliminar esta partida?")
+- **THEN** a confirmation dialog is shown ("¿Eliminar este partido?")
 
 #### Scenario: Delete confirmed
 

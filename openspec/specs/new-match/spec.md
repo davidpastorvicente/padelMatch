@@ -10,20 +10,20 @@ The app SHALL allow the user to select between 4 and 7 players for a new match s
 
 #### Scenario: Opening new match screen
 
-- **WHEN** the user taps the "Nueva partida" FAB
+- **WHEN** the user taps the "Nueva partido" FAB
 - **THEN** the new match screen opens showing the list of known players (Jugadores) as selectable chips
 - **AND** each chip shows the player's name
 
 #### Scenario: Today's match already exists
 
 - **WHEN** the user opens the app and a session for today already exists
-- **THEN** the "Nueva partida" FAB is disabled
+- **THEN** the "Nueva partido" FAB is disabled
 - **AND** a tooltip or message explains that a match for today already exists
 
 #### Scenario: Valid selection
 
 - **WHEN** the user selects between 4 and 7 players
-- **THEN** a "Crear partida" button becomes enabled
+- **THEN** a "Crear partido" button becomes enabled
 
 #### Scenario: Invalid selection
 
@@ -70,7 +70,7 @@ The app SHALL persist the completed session to the local database when the user 
 
 #### Scenario: Saving session
 
-- **WHEN** the user taps "Guardar Partida"
+- **WHEN** the user taps "Guardar partido"
 - **THEN** the session (players, games, scores, date) is written to the Room database
 - **AND** the user is returned to the Match History screen where the new session appears at the top
 
@@ -80,7 +80,7 @@ The app SHALL persist the new session to the local database as soon as the user 
 
 #### Scenario: Saving session on confirm
 
-- **WHEN** the user taps "Crear partida" with a valid player selection
+- **WHEN** the user taps "Crear partido" with a valid player selection
 - **THEN** the session (date = today, players, generated games) is immediately written to the Room database
 - **AND** all `winningPair` values start as `null`
 - **AND** the user is returned to the Match History screen where the new session appears at the top

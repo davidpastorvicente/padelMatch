@@ -54,6 +54,7 @@ interface SessionDao {
         SELECT s.id AS sessionId, s.date AS date, sp.winRatio AS winRatio FROM session_players sp
         JOIN sessions s ON s.id = sp.sessionId
         WHERE sp.playerId = :playerId
+        AND EXISTS (SELECT 1 FROM games g WHERE g.sessionId = s.id AND g.winningPair IS NOT NULL)
         ORDER BY s.date ASC
     """)
     suspend fun getPlayerSessionHistory(playerId: Long): List<PlayerSessionEntry>
