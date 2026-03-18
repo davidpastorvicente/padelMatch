@@ -33,7 +33,7 @@ app/src/main/java/com/padelgroup/padelMatch/
     ├── newmatch/     # NewMatchScreen, NewMatchViewModel, PlayerSelectionStep
     ├── results/      # EditResultsScreen, GamePickerSheet
     ├── session/      # SessionDetailScreen, SessionDetailViewModel
-    ├── statistics/   # StatisticsScreen, PlayerDetailScreen, PlayerDetailViewModel
+    ├── statistics/   # StatisticsScreen, PlayerDetailScreen, PlayerDetailViewModel, CombinedWinRatioChartScreen
     └── theme/        # Color, Typography, playerColors()
 ```
 
@@ -72,6 +72,10 @@ app/src/main/java/com/padelgroup/padelMatch/
 - Player colour badges use `playerColors(name: String): Pair<Color, Color>` from `ui/theme/`
 - Win-ratio badge gradient: red(0%) → orange(30%) → light green(50%) → dark green(100%)
 - Charts use time-proportional X axis (`LocalDate.toEpochDay()` for positioning)
+- Combined chart is rotated 90° via `RotatedLayout` (swaps width/height constraints + `graphicsLayer { rotationZ = 90f }`) for landscape display within portrait layout
+- Chart line colours use `lerp(bg, onColor, 0.45f)` for a vivid mid-tone between badge background and text colour
+- Canvas tooltips: width from `Paint.measureText()` + padding; height from `fontMetrics.ascent/descent` for pixel-perfect equal padding; text positioned at baseline using `-fm.ascent` offset
+- Win ratio percentages use `roundToInt()` (never `toInt()`) everywhere; global win ratio shown with one decimal (`"%.1f%%".format(...)`)
 - Player badges sorted alphabetically wherever displayed
 - Spanish locale for all user-facing date strings (`Locale("es")`)
 - All user-facing text is in Spanish

@@ -9,7 +9,8 @@ An Android app for tracking padel match sessions with your regular group. Record
 - **Match history** — browse all past sessions with an inline calendar filter
 - **Session detail** — see every set played, the bracket result, and the classification chart
 - **Player statistics** — per-player cards with aggregate stats (partidos, sets, wins, ratio) and a time-proportional win-ratio sparkline
-- **Player detail** — individual breakdown with a full chart and clickable session history
+- **Combined win-ratio chart** — full-screen landscape chart overlaying all players' win-ratio trends; tap any point for a date + ratio tooltip
+- **Player detail** — individual breakdown with a full chart (tap points for tooltips) and clickable session history
 - **New match wizard** — pick a date, select players (with duplicate-date warning), and save
 - **Import / Export** — JSON backup and restore via the overflow menu
 
