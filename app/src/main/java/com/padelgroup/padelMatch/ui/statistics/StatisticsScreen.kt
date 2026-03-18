@@ -48,13 +48,22 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
+            val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
+            val globalEpochRange = remember(playerStats) {
+                val allDates = playerStats.flatMap { it.history }.mapNotNull {
+                    try { LocalDate.parse(it.date, isoFmt).toEpochDay() } catch (_: Exception) { null }
+                }
+                if (allDates.isEmpty()) null
+                else Pair(allDates.min(), allDates.max())
+            }
+
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(playerStats, key = { it.player.id }) { stats ->
                     val onClick = remember(stats.player.id) { { onPlayerClick(stats.player.id) } }
-                    PlayerStatCard(stats = stats, onClick = onClick)
+                    PlayerStatCard(stats = stats, onClick = onClick, globalEpochRange = globalEpochRange)
                 }
                 item { Spacer(Modifier.height(80.dp)) }
             }
@@ -63,7 +72,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
 }
 
 @Composable
-fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}) {
+fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRange: Pair<Long, Long>? = null) {
     val (badgeBg, badgeFg) = remember(stats.player.name) { playerColors(stats.player.name) }
     val winPct = remember(stats.winRatio) { (stats.winRatio * 100).toInt() }
 
@@ -119,17 +128,17 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}) {
                 }
             }
 
-            if (stats.history.size >= 2) {
+            if (stats.history.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                WinRatioSparkLine(history = stats.history, lineColor = badgeBg)
+                WinRatioSparkLine(history = stats.history, lineColor = badgeBg, globalEpochRange = globalEpochRange)
             }
         }
     }
 }
 
 @Composable
-fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modifier: Modifier = Modifier) {
-    if (history.size < 2) return
+fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, globalEpochRange: Pair<Long, Long>? = null, modifier: Modifier = Modifier) {
+    if (history.isEmpty()) return
 
     val darkerLineColor = remember(lineColor) {
         Color(
@@ -140,13 +149,13 @@ fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modif
         )
     }
 
-    val xFractions = remember(history) {
+    val xFractions = remember(history, globalEpochRange) {
         val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
         val dates = history.map {
             try { LocalDate.parse(it.date, isoFmt) } catch (_: Exception) { LocalDate.now() }
         }
-        val minEpoch = dates.first().toEpochDay()
-        val maxEpoch = dates.last().toEpochDay()
+        val minEpoch = globalEpochRange?.first ?: dates.first().toEpochDay()
+        val maxEpoch = globalEpochRange?.second ?: dates.last().toEpochDay()
         val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
         dates.map { (it.toEpochDay() - minEpoch) / totalDays }
     }

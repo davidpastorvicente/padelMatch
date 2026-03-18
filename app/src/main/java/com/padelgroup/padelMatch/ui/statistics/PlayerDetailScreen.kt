@@ -138,14 +138,12 @@ private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.height(12.dp))
-                    if (data.sessionHistory.size >= 2) {
-                        PlayerWinRatioChart(
-                            history = data.sessionHistory,
-                            lineColor = badgeBg,
-                            modifier = Modifier.fillMaxWidth().height(160.dp)
-                        )
-                        Spacer(Modifier.height(16.dp))
-                    }
+                    PlayerWinRatioChart(
+                        history = data.sessionHistory,
+                        lineColor = badgeBg,
+                        modifier = Modifier.fillMaxWidth().height(160.dp)
+                    )
+                    Spacer(Modifier.height(16.dp))
                     HorizontalDivider(thickness = 0.5.dp)
                     val reversedHistory = remember(data.sessionHistory) { data.sessionHistory.reversed() }
                     reversedHistory.forEach { entry ->
@@ -257,6 +255,7 @@ private fun PlayerWinRatioChart(
     }
 
     val xFractions = remember(history) {
+        if (history.size == 1) return@remember listOf(0.5f)
         val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
         val dates = history.map {
             try { LocalDate.parse(it.date, isoFmt) } catch (_: Exception) { LocalDate.now() }
