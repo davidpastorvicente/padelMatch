@@ -268,22 +268,25 @@ private fun CombinedWinRatioChart(
                 val datePaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.argb(200, 255, 255, 255)
                     textSize = 28f
+                    textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
                 val ratioPaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.WHITE
                     textSize = 32f
                     isFakeBoldText = true
+                    textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
                 drawRoundRect(
                     android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
                     14f, 14f, bgPaint
                 )
-                drawText(dateStr, tooltipX + 14f, tooltipY + 28f, datePaint)
+                val centerX = tooltipX + tooltipW / 2
+                drawText(dateStr, centerX, tooltipY + 28f, datePaint)
                 drawText(
                     "${(entry.winRatio * 100).roundToInt()}%",
-                    tooltipX + 14f, tooltipY + 64f, ratioPaint
+                    centerX, tooltipY + 64f, ratioPaint
                 )
             }
         }

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
 import com.padelgroup.padelMatch.ui.theme.playerColors
+import kotlin.math.roundToInt
 
 @Composable
 fun ClassificationChart(players: List<SessionPlayerWithName>) {
@@ -30,7 +31,7 @@ fun ClassificationChart(players: List<SessionPlayerWithName>) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         sorted.forEach { player ->
             val (bg, fg) = remember(player.playerName) { playerColors(player.playerName) }
-            val pct = remember(player.winRatio) { (player.winRatio * 100).toInt() }
+            val pct = remember(player.winRatio) { (player.winRatio * 100).roundToInt() }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

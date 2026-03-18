@@ -110,7 +110,7 @@ fun PlayerDetailScreen(
 @Composable
 private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     val (badgeBg, _) = playerColors(data.player.name)
-    val winPct = (data.winRatio * 100).toInt()
+    val winPct = (data.winRatio * 100).roundToInt()
 
     Column(
         modifier = modifier
@@ -202,7 +202,7 @@ private fun SessionHistoryRow(entry: PlayerSessionEntry, onClick: () -> Unit) {
                 .replaceFirstChar { it.uppercase() }
         } catch (_: Exception) { entry.date }
     }
-    val ratioPct = remember(entry.winRatio) { (entry.winRatio * 100).toInt() }
+    val ratioPct = remember(entry.winRatio) { (entry.winRatio * 100).roundToInt() }
     val (badgeColor, textColor) = remember(entry.winRatio) { winRatioBadgeColor(entry.winRatio) }
 
     Row(
@@ -385,22 +385,25 @@ private fun PlayerWinRatioChart(
                 val datePaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.argb(200, 255, 255, 255)
                     textSize = 28f
+                    textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
                 val ratioPaint = android.graphics.Paint().apply {
                     color = android.graphics.Color.WHITE
                     textSize = 32f
                     isFakeBoldText = true
+                    textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
                 drawRoundRect(
                     android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
                     14f, 14f, bgPaint
                 )
-                drawText(formattedDates[idx], tooltipX + 14f, tooltipY + 28f, datePaint)
+                val centerX = tooltipX + tooltipW / 2
+                drawText(formattedDates[idx], centerX, tooltipY + 28f, datePaint)
                 drawText(
                     "${(history[idx].winRatio * 100).roundToInt()}%",
-                    tooltipX + 14f, tooltipY + 64f, ratioPaint
+                    centerX, tooltipY + 64f, ratioPaint
                 )
             }
         }

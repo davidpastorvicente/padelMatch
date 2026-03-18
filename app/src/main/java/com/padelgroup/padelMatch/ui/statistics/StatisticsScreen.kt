@@ -34,6 +34,7 @@ import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
@@ -74,7 +75,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
 @Composable
 fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRange: Pair<Long, Long>? = null) {
     val (badgeBg, badgeFg) = remember(stats.player.name) { playerColors(stats.player.name) }
-    val winPct = remember(stats.winRatio) { (stats.winRatio * 100).toInt() }
+    val winPct = remember(stats.winRatio) { (stats.winRatio * 100).roundToInt() }
 
     ElevatedCard(
         onClick = onClick,
