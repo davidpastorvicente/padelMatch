@@ -8,6 +8,9 @@ import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
 import com.padelgroup.padelMatch.data.format.PadelMatchExport
+import com.padelgroup.padelMatch.di.IoDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import javax.inject.Inject
@@ -17,11 +20,12 @@ import javax.inject.Singleton
 class JsonImporter @Inject constructor(
     private val playerDao: PlayerDao,
     private val sessionDao: SessionDao,
-    private val gameDao: GameDao
+    private val gameDao: GameDao,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun import(stream: InputStream, skipExisting: Boolean = true) {
+    suspend fun import(stream: InputStream, skipExisting: Boolean = true) = withContext(ioDispatcher) {
         val text = stream.bufferedReader().readText()
         val export = json.decodeFromString<PadelMatchExport>(text)
 

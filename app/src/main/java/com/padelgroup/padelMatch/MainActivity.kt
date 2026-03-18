@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
 import com.padelgroup.padelMatch.ui.navigation.AppNavigation
 import com.padelgroup.padelMatch.ui.theme.PadelMatchTheme

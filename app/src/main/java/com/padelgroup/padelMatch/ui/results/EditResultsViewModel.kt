@@ -6,11 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.padelgroup.padelMatch.data.db.entity.GameEntity
 import com.padelgroup.padelMatch.data.repository.GameWithPlayerNames
 import com.padelgroup.padelMatch.data.repository.SessionRepository
+import com.padelgroup.padelMatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,21 +40,22 @@ data class EditResultsUiState(
 @HiltViewModel
 class EditResultsViewModel @Inject constructor(
     private val sessionRepository: SessionRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val sessionId: Long = checkNotNull(savedStateHandle["sessionId"])
 
     private val _uiState = MutableStateFlow(EditResultsUiState())
-    val uiState: StateFlow<EditResultsUiState> = _uiState
+    val uiState: StateFlow<EditResultsUiState> = _uiState.asStateFlow()
 
     private val _navBack = MutableSharedFlow<Unit>()
-    val navBack: SharedFlow<Unit> = _navBack
+    val navBack: SharedFlow<Unit> = _navBack.asSharedFlow()
 
     private var initialized = false
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             sessionRepository.getAllSessionsFlow().collect { sessions ->
                 val session = sessions.find { it.id == sessionId }
                 if (session != null && !initialized) {
@@ -160,7 +165,7 @@ class EditResultsViewModel @Inject constructor(
     }
 
     fun save() {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             _uiState.update { it.copy(isSaving = true) }
             val state = _uiState.value
 

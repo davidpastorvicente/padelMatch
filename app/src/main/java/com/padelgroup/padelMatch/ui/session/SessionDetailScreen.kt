@@ -25,7 +25,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.padelgroup.padelMatch.data.repository.SessionWithDetails
 import com.padelgroup.padelMatch.ui.history.BracketGameCard
 import com.padelgroup.padelMatch.ui.history.ClassificationChart
@@ -49,12 +52,15 @@ fun SessionDetailScreen(
     onBack: () -> Unit,
     onEditResults: (sessionId: Long) -> Unit
 ) {
-    val session by viewModel.session.collectAsState()
+    val session by viewModel.session.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val showDeleteDialog = remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.navBack.collect { onBack() }
+    LaunchedEffect(viewModel.navBack, lifecycleOwner) {
+        viewModel.navBack
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collect { onBack() }
     }
 
     if (showDeleteDialog.value) {
@@ -181,7 +187,7 @@ fun SessionDetailScreen(
 
 private fun String.toDisplayDate(): String = try {
     val date = LocalDate.parse(this)
-    date.format(DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale("es")))
+    date.format(DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale.forLanguageTag("es")))
 } catch (_: Exception) { this }
 
 private fun formatMatchForSharing(session: SessionWithDetails): String {

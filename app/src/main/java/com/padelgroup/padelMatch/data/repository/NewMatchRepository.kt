@@ -5,6 +5,9 @@ import com.padelgroup.padelMatch.data.db.dao.SessionDao
 import com.padelgroup.padelMatch.data.db.entity.GameEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
+import com.padelgroup.padelMatch.di.IoDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -25,7 +28,8 @@ data class NewMatchGame(
 class NewMatchRepository @Inject constructor(
     private val sessionDao: SessionDao,
     private val gameDao: GameDao,
-    private val templateRepository: TemplateRepository
+    private val templateRepository: TemplateRepository,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
     fun generateGames(playerIds: List<Long>): List<NewMatchGame> {
         require(playerIds.size in 4..7) { "Player count must be between 4 and 7" }
@@ -43,7 +47,11 @@ class NewMatchRepository @Inject constructor(
         }
     }
 
-    suspend fun saveSession(playerIds: List<Long>, games: List<NewMatchGame>, date: String = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)): Long {
+    suspend fun saveSession(
+        playerIds: List<Long>,
+        games: List<NewMatchGame>,
+        date: String = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    ): Long = withContext(ioDispatcher) {
         val sessionId = sessionDao.insertSession(SessionEntity(date = date))
 
         // Insert session players with 0 win ratio (results entered separately)
@@ -64,6 +72,6 @@ class NewMatchRepository @Inject constructor(
                 winningPair = null
             )
         })
-        return sessionId
+        sessionId
     }
 }

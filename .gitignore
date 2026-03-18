@@ -1,7 +1,6 @@
 # ─── Android / Gradle ────────────────────────────────────────────────────────
 *.iml
 local.properties
-.DS_Store
 build/
 /captures
 .externalNativeBuild

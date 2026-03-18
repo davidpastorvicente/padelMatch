@@ -16,16 +16,16 @@ An Android app for tracking padel match sessions with your regular group. Record
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Kotlin 2.0 |
-| UI | Jetpack Compose + Material 3 |
-| Architecture | MVVM + Repository |
-| DI | Hilt |
-| Database | Room |
-| Navigation | Compose Navigation |
-| Async | Kotlin Coroutines + Flow |
-| Serialization | kotlinx.serialization |
+| Layer         | Technology                   |
+|---------------|------------------------------|
+| Language      | Kotlin 2.0                   |
+| UI            | Jetpack Compose + Material 3 |
+| Architecture  | MVVM + Repository            |
+| DI            | Hilt                         |
+| Database      | Room                         |
+| Navigation    | Compose Navigation           |
+| Async         | Kotlin Coroutines + Flow     |
+| Serialization | kotlinx.serialization        |
 
 ## Requirements
 

@@ -28,7 +28,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -48,11 +48,11 @@ fun NewMatchScreen(
     onSaved: (sessionId: Long) -> Unit,
     onBack: () -> Unit
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val showDatePicker = remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.navEvent) {
         viewModel.navEvent.collect { sessionId ->
             Toast.makeText(context, "Partido creado correctamente", Toast.LENGTH_SHORT).show()
             onSaved(sessionId)
@@ -111,7 +111,7 @@ fun NewMatchScreen(
                 Column {
                     // Date selector row
                     val dateLabel = state.selectedDate.format(
-                        DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale("es"))
+                        DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale.forLanguageTag("es"))
                     )
                     OutlinedCard(
                         onClick = { showDatePicker.value = true },

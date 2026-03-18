@@ -6,8 +6,12 @@ import com.padelgroup.padelMatch.data.db.dao.SessionDao
 import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
 import com.padelgroup.padelMatch.data.db.entity.GameEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
+import com.padelgroup.padelMatch.di.IoDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,15 +42,22 @@ data class GameWithPlayerNames(
 class SessionRepository @Inject constructor(
     private val sessionDao: SessionDao,
     private val gameDao: GameDao,
-    private val playerDao: PlayerDao
+    private val playerDao: PlayerDao,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
+    /**
+     * Returns a flow of all sessions with their details (players and games).
+     * Since this involves fetching additional data for each session, we perform the mapping
+     * on the [ioDispatcher] to ensure main-safety and efficiency.
+     */
     fun getAllSessionsFlow(): Flow<List<SessionWithDetails>> =
         sessionDao.getAllSessions().map { sessions ->
+            val allPlayers = playerDao.getAllPlayersList()
+            val playerMap = allPlayers.associate { it.id to it.name }
+            
             sessions.map { session ->
                 val players = sessionDao.getSessionPlayersWithNames(session.id)
                 val games = gameDao.getGamesForSession(session.id)
-                val allPlayers = playerDao.getAllPlayersList()
-                val playerMap = allPlayers.associate { it.id to it.name }
                 SessionWithDetails(
                     id = session.id,
                     date = session.date,
@@ -54,13 +65,15 @@ class SessionRepository @Inject constructor(
                     games = games.map { g -> g.toGameWithNames(playerMap) }
                 )
             }
-        }
+        }.flowOn(ioDispatcher)
 
-    suspend fun sessionExistsForDate(date: String): Boolean =
+    suspend fun sessionExistsForDate(date: String): Boolean = withContext(ioDispatcher) {
         sessionDao.getSessionByDate(date) != null
+    }
 
-    suspend fun deleteSession(sessionId: Long) =
+    suspend fun deleteSession(sessionId: Long) = withContext(ioDispatcher) {
         sessionDao.deleteSession(sessionId)
+    }
 
     suspend fun updateGameWinners(
         sessionId: Long,
@@ -68,7 +81,7 @@ class SessionRepository @Inject constructor(
         toDelete: Set<Long> = emptySet(),
         toInsert: List<GameEntity> = emptyList(),
         gameNumberUpdates: Map<Long, Int> = emptyMap()
-    ) {
+    ) = withContext(ioDispatcher) {
         toDelete.forEach { gameDao.deleteGame(it) }
         toInsert.forEach { gameDao.insertGame(it) }
         winners.forEach { (gameId, winningPair) ->

@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
@@ -63,7 +63,7 @@ fun PlayerDetailScreen(
     onBack: () -> Unit,
     onSessionClick: (Long) -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -196,7 +196,7 @@ private fun StatsRow(labels: List<String>, values: List<String>) {
 @Composable
 private fun SessionHistoryRow(entry: PlayerSessionEntry, onClick: () -> Unit) {
     val dateStr = remember(entry.date) {
-        val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", Locale("es"))
+        val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es"))
         try {
             LocalDate.parse(entry.date, DateTimeFormatter.ISO_LOCAL_DATE).format(formatter)
                 .replaceFirstChar { it.uppercase() }
@@ -274,7 +274,7 @@ private fun PlayerWinRatioChart(
     }
 
     val formattedDates = remember(history) {
-        val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es"))
+        val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("es"))
         history.map { entry ->
             try { LocalDate.parse(entry.date, DateTimeFormatter.ISO_LOCAL_DATE).format(fmt) }
             catch (_: Exception) { entry.date }

@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,16 +28,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
-    val playerStats by viewModel.playerStats.collectAsState()
+    val playerStats by viewModel.playerStats.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (playerStats.isEmpty()) {
@@ -138,7 +137,7 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
 }
 
 @Composable
-fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, globalEpochRange: Pair<Long, Long>? = null, modifier: Modifier = Modifier) {
+fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modifier: Modifier = Modifier, globalEpochRange: Pair<Long, Long>? = null) {
     if (history.isEmpty()) return
 
     val darkerLineColor = remember(lineColor) {

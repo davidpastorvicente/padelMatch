@@ -8,9 +8,12 @@ import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import com.padelgroup.padelMatch.data.repository.StatisticsRepository
+import com.padelgroup.padelMatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,16 +38,17 @@ class PlayerDetailViewModel @Inject constructor(
     private val playerDao: PlayerDao,
     private val gameDao: GameDao,
     private val statisticsRepository: StatisticsRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val playerId: Long = checkNotNull(savedStateHandle["playerId"])
 
     private val _uiState = MutableStateFlow<PlayerDetailUiState>(PlayerDetailUiState.Loading)
-    val uiState: StateFlow<PlayerDetailUiState> = _uiState
+    val uiState: StateFlow<PlayerDetailUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             val player = playerDao.getById(playerId)
             if (player == null) {
                 _uiState.value = PlayerDetailUiState.Error("Jugador no encontrado")
@@ -70,4 +74,3 @@ class PlayerDetailViewModel @Inject constructor(
     }
 
 }
-

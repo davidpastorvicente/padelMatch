@@ -9,13 +9,17 @@ import com.padelgroup.padelMatch.data.importer.JsonImporter
 import com.padelgroup.padelMatch.data.repository.ImportRepository
 import com.padelgroup.padelMatch.data.repository.SessionRepository
 import com.padelgroup.padelMatch.data.repository.SessionWithDetails
+import com.padelgroup.padelMatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -36,14 +40,15 @@ class MatchHistoryViewModel @Inject constructor(
     private val importRepository: ImportRepository,
     private val jsonExporter: JsonExporter,
     private val jsonImporter: JsonImporter,
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _importState = MutableStateFlow<ImportState>(ImportState.Idle)
-    val importState: StateFlow<ImportState> = _importState
+    val importState: StateFlow<ImportState> = _importState.asStateFlow()
 
     private val _dataEvents = MutableSharedFlow<DataEvent>()
-    val dataEvents: SharedFlow<DataEvent> = _dataEvents
+    val dataEvents: SharedFlow<DataEvent> = _dataEvents.asSharedFlow()
 
     val uiState: StateFlow<MatchHistoryUiState> = sessionRepository.getAllSessionsFlow()
         .map { sessions ->
@@ -53,7 +58,7 @@ class MatchHistoryViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MatchHistoryUiState.Loading)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             var prevCount = -1
             uiState.collect { state ->
                 val count = (state as? MatchHistoryUiState.Success)?.sessions?.size ?: return@collect
@@ -67,13 +72,13 @@ class MatchHistoryViewModel @Inject constructor(
 
     // Calendar state
     private val _calendarVisible = MutableStateFlow(false)
-    val calendarVisible: StateFlow<Boolean> = _calendarVisible
+    val calendarVisible: StateFlow<Boolean> = _calendarVisible.asStateFlow()
 
     private val _currentMonth = MutableStateFlow(YearMonth.now())
-    val currentMonth: StateFlow<YearMonth> = _currentMonth
+    val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<String?>(null)
-    val selectedDate: StateFlow<String?> = _selectedDate
+    val selectedDate: StateFlow<String?> = _selectedDate.asStateFlow()
 
     val sessionDates: StateFlow<Set<String>> = sessionRepository.getAllSessionsFlow()
         .map { sessions -> sessions.map { it.date }.toSet() }
@@ -93,7 +98,7 @@ class MatchHistoryViewModel @Inject constructor(
     }
 
     fun triggerImportIfNeeded() {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             _importState.update { ImportState.Importing }
             val result = importRepository.importIfNeeded()
             _importState.update {
@@ -104,7 +109,7 @@ class MatchHistoryViewModel @Inject constructor(
     }
 
     fun exportData() {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             runCatching { jsonExporter.export() }
                 .onSuccess { uri -> _dataEvents.emit(DataEvent.Share(uri)) }
                 .onFailure { _dataEvents.emit(DataEvent.ToastMessage("Error al exportar")) }
@@ -112,7 +117,7 @@ class MatchHistoryViewModel @Inject constructor(
     }
 
     fun importFromUri(uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             runCatching {
                 context.contentResolver.openInputStream(uri)!!.use { stream ->
                     jsonImporter.import(stream, skipExisting = true)

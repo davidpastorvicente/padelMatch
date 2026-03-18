@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
-    private val statisticsRepository: StatisticsRepository
+    statisticsRepository: StatisticsRepository
 ) : ViewModel() {
     val playerStats: StateFlow<List<PlayerStats>> = statisticsRepository.getPlayerStatsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

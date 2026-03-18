@@ -66,5 +66,5 @@ fun SessionCard(session: SessionWithDetails, onClick: () -> Unit) {
 
 private fun formatDate(isoDate: String): String = try {
     val date = LocalDate.parse(isoDate)
-    date.format(DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale("es")))
-} catch (e: Exception) { isoDate }
+    date.format(DateTimeFormatter.ofPattern("d 'de' MMMM yyyy", Locale.forLanguageTag("es")))
+} catch (_: Exception) { isoDate }

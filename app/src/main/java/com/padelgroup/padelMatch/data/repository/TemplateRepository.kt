@@ -61,5 +61,4 @@ class TemplateRepository @Inject constructor() {
 
     fun getTemplate(playerCount: Int): List<GameSlots>? = templates[playerCount]
 
-    fun getSupportedPlayerCounts(): List<Int> = templates.keys.sorted()
 }

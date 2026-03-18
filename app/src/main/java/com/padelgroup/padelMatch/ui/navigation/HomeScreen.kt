@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
@@ -26,12 +27,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -57,35 +61,38 @@ fun HomeScreen(
     val isHistoryTab = currentRoute == HomeTab.HISTORY.route || currentRoute == null
     val isStatisticsTab = currentRoute == HomeTab.STATISTICS.route
 
-    val calendarVisible by historyViewModel.calendarVisible.collectAsState()
-    val currentMonth by historyViewModel.currentMonth.collectAsState()
-    val selectedDate by historyViewModel.selectedDate.collectAsState()
-    val sessionDates by historyViewModel.sessionDates.collectAsState()
+    val calendarVisible by historyViewModel.calendarVisible.collectAsStateWithLifecycle()
+    val currentMonth by historyViewModel.currentMonth.collectAsStateWithLifecycle()
+    val selectedDate by historyViewModel.selectedDate.collectAsStateWithLifecycle()
+    val sessionDates by historyViewModel.sessionDates.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { historyViewModel.importFromUri(it) }
     }
 
-    LaunchedEffect(Unit) {
-        historyViewModel.dataEvents.collect { event ->
-            when (event) {
-                is MatchHistoryViewModel.DataEvent.Share -> {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "application/json"
-                        putExtra(Intent.EXTRA_STREAM, event.uri)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    LaunchedEffect(historyViewModel.dataEvents, lifecycleOwner) {
+        historyViewModel.dataEvents
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collect { event ->
+                when (event) {
+                    is MatchHistoryViewModel.DataEvent.Share -> {
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/json"
+                            putExtra(Intent.EXTRA_STREAM, event.uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(intent, "Exportar PadelMatch"))
                     }
-                    context.startActivity(Intent.createChooser(intent, "Exportar PadelMatch"))
-                }
-                is MatchHistoryViewModel.DataEvent.ToastMessage -> {
-                    Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
-                }
-                is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
-                    // Handled in MatchHistoryScreen
+                    is MatchHistoryViewModel.DataEvent.ToastMessage -> {
+                        Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
+                    }
+                    is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
+                        // Handled in MatchHistoryScreen
+                    }
                 }
             }
-        }
     }
 
     Scaffold(
@@ -95,7 +102,7 @@ fun HomeScreen(
                 actions = {
                     if (isStatisticsTab) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                             tooltip = { PlainTooltip { Text("Gráfico general") } },
                             state = rememberTooltipState()
                         ) {
@@ -110,7 +117,7 @@ fun HomeScreen(
                     }
                     if (isHistoryTab) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                             tooltip = { PlainTooltip { Text("Calendario") } },
                             state = rememberTooltipState()
                         ) {

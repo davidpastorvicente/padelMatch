@@ -10,6 +10,9 @@ import com.padelgroup.padelMatch.data.format.JsonGame
 import com.padelgroup.padelMatch.data.format.JsonPlayer
 import com.padelgroup.padelMatch.data.format.JsonSession
 import com.padelgroup.padelMatch.data.format.PadelMatchExport
+import com.padelgroup.padelMatch.di.IoDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
@@ -20,11 +23,12 @@ class JsonExporter @Inject constructor(
     private val context: Context,
     private val playerDao: PlayerDao,
     private val sessionDao: SessionDao,
-    private val gameDao: GameDao
+    private val gameDao: GameDao,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
     private val json = Json { prettyPrint = true }
 
-    suspend fun export(): Uri {
+    suspend fun export(): Uri = withContext(ioDispatcher) {
         val players = playerDao.getAllPlayersList()
         val sessions = sessionDao.getAllSessionsList()
 
@@ -53,6 +57,6 @@ class JsonExporter @Inject constructor(
         val file = File(context.cacheDir, "padelMatch.json")
         file.writeText(json.encodeToString(PadelMatchExport.serializer(), export))
 
-        return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     }
 }

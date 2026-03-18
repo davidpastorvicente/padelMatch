@@ -7,11 +7,15 @@ import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.repository.NewMatchRepository
 import com.padelgroup.padelMatch.data.repository.PlayerRepository
 import com.padelgroup.padelMatch.data.repository.SessionRepository
+import com.padelgroup.padelMatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -34,19 +38,20 @@ class NewMatchViewModel @Inject constructor(
     private val playerRepository: PlayerRepository,
     private val newMatchRepository: NewMatchRepository,
     private val sessionRepository: SessionRepository,
-    private val playerDao: PlayerDao
+    private val playerDao: PlayerDao,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewMatchUiState())
-    val uiState: StateFlow<NewMatchUiState> = _uiState
+    val uiState: StateFlow<NewMatchUiState> = _uiState.asStateFlow()
 
     private val _todaySessionExists = MutableStateFlow(false)
 
     private val _navEvent = MutableSharedFlow<Long>()
-    val navEvent: SharedFlow<Long> = _navEvent
+    val navEvent: SharedFlow<Long> = _navEvent.asSharedFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             val players = playerRepository.getAllPlayers()
             val deletable = players
                 .filter { playerDao.countGamesForPlayer(it.id) == 0 }
@@ -61,7 +66,7 @@ class NewMatchViewModel @Inject constructor(
     }
 
     fun setSelectedDate(date: LocalDate) {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             val dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             val conflict = sessionRepository.sessionExistsForDate(dateStr)
             _uiState.update { it.copy(selectedDate = date, isDateConflict = conflict) }
@@ -81,7 +86,7 @@ class NewMatchViewModel @Inject constructor(
     fun addNewPlayer() {
         val name = _uiState.value.newPlayerName.trim()
         if (name.isEmpty()) return
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             val id = playerRepository.addPlayer(name)
             val updatedPlayers = playerRepository.getAllPlayers()
             _uiState.update { it.copy(
@@ -94,7 +99,7 @@ class NewMatchViewModel @Inject constructor(
     }
 
     fun deletePlayer(id: Long) {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             val deleted = playerRepository.deletePlayer(id)
             if (deleted) {
                 val updatedPlayers = playerRepository.getAllPlayers()
@@ -109,14 +114,15 @@ class NewMatchViewModel @Inject constructor(
         }
     }
 
-    fun confirmPlayerSelection() {        val state = _uiState.value
+    fun confirmPlayerSelection() {
+        val state = _uiState.value
         val selectedPlayers = state.players.filter { it.id in state.selectedPlayerIds }
         if (selectedPlayers.size !in 4..7) return
         if (state.isDateConflict) {
             _uiState.update { it.copy(error = "Ya existe un partido en esa fecha") }
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             _uiState.update { it.copy(isSaving = true) }
             runCatching {
                 val games = newMatchRepository.generateGames(selectedPlayers.map { it.id })

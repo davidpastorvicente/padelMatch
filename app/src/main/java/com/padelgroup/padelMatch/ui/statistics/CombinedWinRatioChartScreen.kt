@@ -130,7 +130,7 @@ private fun CombinedWinRatioChart(
 ) {
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
     val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
-    val dateFmt = remember { DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es")) }
+    val dateFmt = remember { DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("es")) }
 
     val globalEpochRange: Pair<Long, Long>? = remember(playerStats) {
         val allEpochs = playerStats.flatMap { it.history }.mapNotNull {

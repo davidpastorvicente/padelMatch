@@ -36,13 +36,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
@@ -61,11 +61,11 @@ fun MatchHistoryScreen(
     onNextMonth: () -> Unit = {},
     onSelectDate: (String?) -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val importState by viewModel.importState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val importState by viewModel.importState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.dataEvents) {
         viewModel.dataEvents.collect { event ->
             when (event) {
                 is MatchHistoryViewModel.DataEvent.ScrollToTop -> {
@@ -172,7 +172,7 @@ private fun InlineCalendarPanel(
             IconButton(onClick = onPreviousMonth) {
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Mes anterior")
             }
-            val monthName = currentMonth.month.getDisplayName(TextStyle.FULL, Locale("es"))
+            val monthName = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es"))
                 .replaceFirstChar { it.uppercase() }
             Text(
                 "$monthName ${currentMonth.year}",
