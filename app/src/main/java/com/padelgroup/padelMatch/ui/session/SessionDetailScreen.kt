@@ -40,6 +40,7 @@ import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -211,7 +212,7 @@ private fun formatMatchForSharing(session: SessionWithDetails): String {
     val classificationStr = if (allGamesHaveResults && session.players.isNotEmpty()) {
         val sortedPlayers = session.players.sortedByDescending { it.winRatio }
         "\n\nClasificación:\n" + sortedPlayers.mapIndexed { index, player ->
-            val percentage = (player.winRatio * 100).toInt()
+            val percentage = (player.winRatio * 100).roundToInt()
             "${index + 1}. ${player.playerName}: $percentage%"
         }.joinToString("\n")
     } else {
