@@ -36,13 +36,13 @@ Each player card SHALL include a small trend chart showing the player's win rati
 
 - **WHEN** a player has attended at least 2 sessions
 - **THEN** a compact polyline spark-line is drawn inside the card
-- **AND** the horizontal axis is time-proportional (oldest left → newest right, spacing reflects real elapsed time between sessions)
+- **AND** the horizontal axis is time-proportional and **shared across all players** (global min date on the left, global max date on the right)
 - **AND** the vertical axis represents win ratio (0.0 to 1.0)
 - **AND** the line uses a darkened version of the player's color (×0.65 brightness), stroke width 7f, with dots (radius 7) and white center dots (radius 3)
 
 #### Scenario: Single session player
 
 - **WHEN** a player has attended only one session
-- **THEN** no spark-line is shown
+- **THEN** a single dot is shown at their win ratio on the shared time axis
 - **AND** the aggregate stats are still displayed normally
 

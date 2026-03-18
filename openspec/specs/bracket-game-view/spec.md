@@ -35,7 +35,7 @@ The bracket game card SHALL visually distinguish the winning team from the losin
 
 - **WHEN** a game has a recorded winner (winningPair = 1 or 2)
 - **THEN** the winning team's side of the bracket is shown with the primary color background and bold player names
-- **AND** a 🏆 icon is shown vertically centred alongside the player names on the winning side
+- **AND** a 🏆 icon is shown pinned to the **outer edge** of the winning team's panel (far left if right panel wins, far right if left panel wins)
 - **AND** the losing team's side is shown with a muted/dimmed appearance
 
 #### Scenario: No winner
