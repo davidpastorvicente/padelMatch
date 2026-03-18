@@ -1,6 +1,7 @@
 package com.padelgroup.padelMatch.ui.statistics
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,17 +30,22 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -47,6 +53,8 @@ import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.math.roundToInt
 
 private data class PlayerLine(
     val stats: PlayerStats,
@@ -122,6 +130,7 @@ private fun CombinedWinRatioChart(
 ) {
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
     val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
+    val dateFmt = remember { DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es")) }
 
     val globalEpochRange: Pair<Long, Long>? = remember(playerStats) {
         val allEpochs = playerStats.flatMap { it.history }.mapNotNull {
@@ -159,12 +168,40 @@ private fun CombinedWinRatioChart(
         }
     }
 
-    Canvas(modifier = modifier) {
+    val paddingLeft = 88f
+    val paddingRight = 16f
+    val paddingTop = 8f
+
+    var canvasSize by remember { mutableStateOf(Size.Zero) }
+    // selected: lineIdx to pointIdx
+    var selected by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+
+    Canvas(
+        modifier = modifier
+            .onSizeChanged { canvasSize = Size(it.width.toFloat(), it.height.toFloat()) }
+            .pointerInput(playerLines, canvasSize) {
+                detectTapGestures { offset ->
+                    val w = canvasSize.width
+                    val h = canvasSize.height
+                    if (w == 0f || h == 0f) return@detectTapGestures
+                    val chartW = w - paddingLeft - paddingRight
+                    val chartH = h - paddingTop
+                    var bestDist = Float.MAX_VALUE
+                    var bestPair: Pair<Int, Int>? = null
+                    playerLines.forEachIndexed { li, line ->
+                        line.stats.history.forEachIndexed { pi, entry ->
+                            val px = paddingLeft + line.xFractions[pi] * chartW
+                            val py = paddingTop + chartH - entry.winRatio * chartH
+                            val dist = (px - offset.x).let { it * it } + (py - offset.y).let { it * it }
+                            if (dist < bestDist) { bestDist = dist; bestPair = li to pi }
+                        }
+                    }
+                    selected = if (bestDist < 3600f) bestPair else null
+                }
+            }
+    ) {
         val w = size.width
         val h = size.height
-        val paddingLeft = 88f
-        val paddingRight = 16f
-        val paddingTop = 8f
         val chartW = w - paddingLeft - paddingRight
         val chartH = h - paddingTop
 
@@ -189,10 +226,8 @@ private fun CombinedWinRatioChart(
         playerLines.forEach { line ->
             val n = line.stats.history.size
             if (n == 0) return@forEach
-
             fun xPos(i: Int): Float = paddingLeft + line.xFractions[i] * chartW
             fun yPos(i: Int): Float = paddingTop + chartH - line.stats.history[i].winRatio * chartH
-
             for (i in 0 until n - 1) {
                 drawLine(
                     color = line.lineColor,
@@ -204,6 +239,52 @@ private fun CombinedWinRatioChart(
             for (i in 0 until n) {
                 drawCircle(color = line.lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
                 drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
+            }
+        }
+
+        selected?.let { (li, pi) ->
+            val line = playerLines.getOrNull(li) ?: return@let
+            val entry = line.stats.history.getOrNull(pi) ?: return@let
+            val tx = paddingLeft + line.xFractions[pi] * chartW
+            val ty = paddingTop + chartH - entry.winRatio * chartH
+            drawCircle(color = line.lineColor.copy(alpha = 0.25f), radius = 20f, center = Offset(tx, ty))
+            drawCircle(color = line.lineColor, radius = 9f, center = Offset(tx, ty))
+            drawCircle(color = Color.White, radius = 4f, center = Offset(tx, ty))
+
+            val dateStr = try {
+                LocalDate.parse(entry.date, isoFmt).format(dateFmt)
+            } catch (_: Exception) { entry.date }
+
+            drawContext.canvas.nativeCanvas.apply {
+                val tooltipW = 220f
+                val tooltipH = 82f
+                val margin = 14f
+                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
+                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
+                val bgPaint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.argb(230, 30, 30, 30)
+                    isAntiAlias = true
+                }
+                val datePaint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.argb(200, 255, 255, 255)
+                    textSize = 28f
+                    isAntiAlias = true
+                }
+                val ratioPaint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.WHITE
+                    textSize = 32f
+                    isFakeBoldText = true
+                    isAntiAlias = true
+                }
+                drawRoundRect(
+                    android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
+                    14f, 14f, bgPaint
+                )
+                drawText(dateStr, tooltipX + 14f, tooltipY + 28f, datePaint)
+                drawText(
+                    "${(entry.winRatio * 100).roundToInt()}%",
+                    tooltipX + 14f, tooltipY + 64f, ratioPaint
+                )
             }
         }
     }
