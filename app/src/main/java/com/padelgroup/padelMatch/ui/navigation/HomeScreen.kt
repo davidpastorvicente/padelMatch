@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -46,12 +47,14 @@ fun HomeScreen(
     historyViewModel: MatchHistoryViewModel,
     onNewMatch: () -> Unit,
     onSessionClick: (Long) -> Unit,
-    onPlayerClick: (Long) -> Unit = {}
+    onPlayerClick: (Long) -> Unit = {},
+    onCombinedChart: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val isHistoryTab = currentRoute == HomeTab.HISTORY.route || currentRoute == null
+    val isStatisticsTab = currentRoute == HomeTab.STATISTICS.route
 
     val todaySessionExists by historyViewModel.todaySessionExists.collectAsState()
     val calendarVisible by historyViewModel.calendarVisible.collectAsState()
@@ -88,6 +91,15 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("PadelMatch", fontWeight = FontWeight.Bold) },
                 actions = {
+                    if (isStatisticsTab) {
+                        IconButton(onClick = onCombinedChart) {
+                            Icon(
+                                Icons.Default.ShowChart,
+                                contentDescription = "Ver comparativa",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
                     if (isHistoryTab) {
                         IconButton(onClick = { historyViewModel.toggleCalendar() }) {
                             Icon(

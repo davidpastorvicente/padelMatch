@@ -13,6 +13,7 @@ import com.padelgroup.padelMatch.ui.results.EditResultsScreen
 import com.padelgroup.padelMatch.ui.results.EditResultsViewModel
 import com.padelgroup.padelMatch.ui.session.SessionDetailScreen
 import com.padelgroup.padelMatch.ui.session.SessionDetailViewModel
+import com.padelgroup.padelMatch.ui.statistics.CombinedWinRatioChartScreen
 import com.padelgroup.padelMatch.ui.statistics.PlayerDetailScreen
 import com.padelgroup.padelMatch.ui.statistics.PlayerDetailViewModel
 
@@ -28,6 +29,7 @@ sealed class Screen(val route: String) {
     object PlayerDetail : Screen("playerDetail/{playerId}") {
         fun createRoute(playerId: Long) = "playerDetail/$playerId"
     }
+    object CombinedChart : Screen("combinedChart")
 }
 
 @Composable
@@ -39,7 +41,8 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
                 historyViewModel = historyViewModel,
                 onNewMatch = { navController.navigate(Screen.NewMatch.route) },
                 onSessionClick = { sessionId -> navController.navigate(Screen.SessionDetail.createRoute(sessionId)) },
-                onPlayerClick = { playerId -> navController.navigate(Screen.PlayerDetail.createRoute(playerId)) }
+                onPlayerClick = { playerId -> navController.navigate(Screen.PlayerDetail.createRoute(playerId)) },
+                onCombinedChart = { navController.navigate(Screen.CombinedChart.route) }
             )
         }
         composable(Screen.NewMatch.route) {
@@ -83,6 +86,13 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
                 viewModel = playerDetailViewModel,
                 onBack = { navController.popBackStack() },
                 onSessionClick = { id -> navController.navigate(Screen.SessionDetail.createRoute(id)) }
+            )
+        }
+        composable(Screen.CombinedChart.route) {
+            val statisticsViewModel = hiltViewModel<com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel>()
+            CombinedWinRatioChartScreen(
+                viewModel = statisticsViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }
