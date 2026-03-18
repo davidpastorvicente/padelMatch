@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -103,7 +103,7 @@ fun HomeScreen(
                         ) {
                             IconButton(onClick = onCombinedChart) {
                                 Icon(
-                                    Icons.Default.ShowChart,
+                                    Icons.AutoMirrored.Filled.ShowChart,
                                     contentDescription = "Ver comparativa",
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
