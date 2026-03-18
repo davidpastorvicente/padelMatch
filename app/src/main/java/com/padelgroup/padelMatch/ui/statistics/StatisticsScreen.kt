@@ -75,7 +75,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
 @Composable
 fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRange: Pair<Long, Long>? = null) {
     val (badgeBg, badgeFg) = remember(stats.player.name) { playerColors(stats.player.name) }
-    val winPct = remember(stats.winRatio) { (stats.winRatio * 100).roundToInt() }
+    val winPct = remember(stats.winRatio) { "%.1f%%".format(stats.winRatio * 100) }
 
     ElevatedCard(
         onClick = onClick,
@@ -117,7 +117,7 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
                     stats.sessionsAttended.toString(),
                     stats.totalGames.toString(),
                     stats.wins.toString(),
-                    "$winPct%"
+                    winPct
                 ).forEach { value ->
                     Text(
                         text = value,

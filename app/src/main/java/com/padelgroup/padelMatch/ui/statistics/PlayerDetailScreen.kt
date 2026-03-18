@@ -110,7 +110,7 @@ fun PlayerDetailScreen(
 @Composable
 private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     val (badgeBg, _) = playerColors(data.player.name)
-    val winPct = (data.winRatio * 100).roundToInt()
+    val winPct = "%.1f%%".format(data.winRatio * 100)
 
     Column(
         modifier = modifier
@@ -128,7 +128,7 @@ private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -
                         data.sessionsAttended.toString(),
                         data.totalGames.toString(),
                         data.wins.toString(),
-                        "$winPct%"
+                        winPct
                     )
                 )
             }
