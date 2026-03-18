@@ -15,13 +15,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -92,31 +96,42 @@ fun HomeScreen(
                 title = { Text("PadelMatch", fontWeight = FontWeight.Bold) },
                 actions = {
                     if (isStatisticsTab) {
-                        IconButton(onClick = onCombinedChart) {
-                            Icon(
-                                Icons.Default.ShowChart,
-                                contentDescription = "Ver comparativa",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text("Gráfico general") } },
+                            state = rememberTooltipState()
+                        ) {
+                            IconButton(onClick = onCombinedChart) {
+                                Icon(
+                                    Icons.Default.ShowChart,
+                                    contentDescription = "Ver comparativa",
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
                     }
                     if (isHistoryTab) {
-                        IconButton(onClick = { historyViewModel.toggleCalendar() }) {
-                            Icon(
-                                Icons.Default.CalendarMonth,
-                                contentDescription = "Filtrar por fecha",
-                                tint = if (calendarVisible)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text("Calendario") } },
+                            state = rememberTooltipState()
+                        ) {
+                            IconButton(onClick = { historyViewModel.toggleCalendar() }) {
+                                Icon(
+                                    Icons.Default.CalendarMonth,
+                                    contentDescription = "Filtrar por fecha",
+                                    tint = if (calendarVisible)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
                     }
                     OverflowMenu(
                         onImport = { filePicker.launch(arrayOf("application/json")) },
                         onExport = { historyViewModel.exportData() }
-                    )
-                },
+                    )                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer

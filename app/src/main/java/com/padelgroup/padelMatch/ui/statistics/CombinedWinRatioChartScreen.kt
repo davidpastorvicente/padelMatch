@@ -73,7 +73,7 @@ fun CombinedWinRatioChartScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Comparativa de ratios", fontWeight = FontWeight.Bold) },
+                title = { Text("Gráfico general", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
