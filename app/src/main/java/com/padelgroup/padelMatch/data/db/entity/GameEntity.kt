@@ -3,13 +3,15 @@ package com.padelgroup.padelMatch.data.db.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "games",
     foreignKeys = [
         ForeignKey(entity = SessionEntity::class, parentColumns = ["id"], childColumns = ["sessionId"], onDelete = ForeignKey.CASCADE)
-    ]
+    ],
+    indices = [Index("sessionId")]
 )
 data class GameEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

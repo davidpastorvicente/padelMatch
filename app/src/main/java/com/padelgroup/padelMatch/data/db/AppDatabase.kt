@@ -18,9 +18,16 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_session_players_playerId ON session_players(playerId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_games_sessionId ON games(sessionId)")
+    }
+}
+
 @Database(
     entities = [PlayerEntity::class, SessionEntity::class, SessionPlayerEntity::class, GameEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
