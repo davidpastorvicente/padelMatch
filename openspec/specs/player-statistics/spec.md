@@ -46,3 +46,17 @@ Each player card SHALL include a small trend chart showing the player's win rati
 - **THEN** a single dot is shown at their win ratio on the shared time axis
 - **AND** the aggregate stats are still displayed normally
 
+### Requirement: Combined Chart Navigation
+
+The Statistics tab top app bar SHALL include an icon button to navigate to the combined win-ratio chart screen.
+
+#### Scenario: Chart icon visible on Statistics tab
+
+- **WHEN** the user is on the Statistics tab
+- **THEN** a chart icon button SHALL be visible in the top app bar
+
+#### Scenario: Chart icon not visible on other tabs
+
+- **WHEN** the user is on any tab other than Statistics
+- **THEN** the chart icon button SHALL NOT be visible
+
