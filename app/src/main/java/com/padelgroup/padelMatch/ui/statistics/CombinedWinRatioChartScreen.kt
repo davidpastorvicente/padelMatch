@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,9 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
@@ -48,7 +50,7 @@ import java.time.format.DateTimeFormatter
 
 private data class PlayerLine(
     val stats: PlayerStats,
-    val darkerColor: Color,
+    val lineColor: Color,
     val xFractions: List<Float>
 )
 
@@ -89,19 +91,25 @@ fun CombinedWinRatioChartScreen(
                 )
             }
         } else {
-            Column(
+            RotatedLayout(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
             ) {
-                CombinedWinRatioChart(
-                    playerStats = playerStats,
-                    modifier = Modifier.fillMaxWidth().height(280.dp)
-                )
-                Spacer(Modifier.height(16.dp))
-                PlayerLegend(playerStats = playerStats)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    CombinedWinRatioChart(
+                        playerStats = playerStats,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    PlayerLegend(playerStats = playerStats)
+                }
             }
         }
     }
@@ -128,15 +136,15 @@ private fun CombinedWinRatioChart(
         val (minEpoch, maxEpoch) = globalEpochRange
         val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
         playerStats.filter { it.history.isNotEmpty() }.map { stats ->
-            val (bg, _) = playerColors(stats.player.name)
-            val darker = Color(red = bg.red * 0.65f, green = bg.green * 0.65f, blue = bg.blue * 0.65f, alpha = 1f)
+            val (bg, onColor) = playerColors(stats.player.name)
+            val lineColor = lerp(bg, onColor, 0.45f)
             val fractions = stats.history.map { entry ->
                 try {
                     val epoch = LocalDate.parse(entry.date, isoFmt).toEpochDay()
                     (epoch - minEpoch) / totalDays
                 } catch (_: Exception) { 0.5f }
             }
-            PlayerLine(stats, darker, fractions)
+            PlayerLine(stats, lineColor, fractions)
         }
     }
 
@@ -187,16 +195,34 @@ private fun CombinedWinRatioChart(
 
             for (i in 0 until n - 1) {
                 drawLine(
-                    color = line.darkerColor,
+                    color = line.lineColor,
                     start = Offset(xPos(i), yPos(i)),
                     end = Offset(xPos(i + 1), yPos(i + 1)),
                     strokeWidth = 7f
                 )
             }
             for (i in 0 until n) {
-                drawCircle(color = line.darkerColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
+                drawCircle(color = line.lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
                 drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
             }
+        }
+    }
+}
+
+@Composable
+private fun RotatedLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(
+        content = content,
+        modifier = modifier.graphicsLayer { rotationZ = 90f }
+    ) { measurables, constraints ->
+        val placeable = measurables.first().measure(
+            Constraints.fixed(constraints.maxHeight, constraints.maxWidth)
+        )
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                x = (constraints.maxWidth - placeable.width) / 2,
+                y = (constraints.maxHeight - placeable.height) / 2
+            )
         }
     }
 }
@@ -210,10 +236,8 @@ private fun PlayerLegend(playerStats: List<PlayerStats>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         sortedPlayers.forEach { stats ->
-            val (bg, _) = remember(stats.player.name) { playerColors(stats.player.name) }
-            val dotColor = remember(bg) {
-                Color(red = bg.red * 0.65f, green = bg.green * 0.65f, blue = bg.blue * 0.65f, alpha = 1f)
-            }
+            val (bg, onColor) = remember(stats.player.name) { playerColors(stats.player.name) }
+            val dotColor = remember(bg, onColor) { lerp(bg, onColor, 0.45f) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = CircleShape,
