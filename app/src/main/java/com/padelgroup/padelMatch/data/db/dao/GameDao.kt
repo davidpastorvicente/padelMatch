@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.padelgroup.padelMatch.data.db.entity.GameEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GameDao {
@@ -36,4 +37,7 @@ interface GameDao {
            OR (winningPair = 2 AND (pair2Player1Id = :playerId OR pair2Player2Id = :playerId))
     """)
     suspend fun countWinsForPlayer(playerId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM games")
+    fun getGamesCountFlow(): Flow<Int>
 }

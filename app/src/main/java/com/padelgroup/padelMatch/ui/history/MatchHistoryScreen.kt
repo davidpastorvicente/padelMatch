@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -127,9 +128,10 @@ fun MatchHistoryScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(filteredSessions, key = { it.id }) { session ->
+                                val onSessionItemClick = remember(session.id) { { onSessionClick(session.id) } }
                                 SessionCard(
                                     session = session,
-                                    onClick = { onSessionClick(session.id) }
+                                    onClick = onSessionItemClick
                                 )
                             }
                             item { Spacer(Modifier.height(80.dp)) }

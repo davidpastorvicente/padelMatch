@@ -52,7 +52,7 @@ fun SessionDetailScreen(
     onBack: () -> Unit,
     onEditResults: (sessionId: Long) -> Unit
 ) {
-    val session by viewModel.session.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -83,6 +83,7 @@ fun SessionDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val session = (uiState as? SessionDetailUiState.Success)?.session
                     Text(
                         text = session?.date?.toDisplayDate() ?: "",
                         fontWeight = FontWeight.Bold
@@ -94,7 +95,7 @@ fun SessionDetailScreen(
                     }
                 },
                 actions = {
-                    session?.let { s ->
+                    (uiState as? SessionDetailUiState.Success)?.session?.let { s ->
                         IconButton(onClick = {
                             val shareText = formatMatchForSharing(s)
                             val sendIntent = Intent().apply {
@@ -117,8 +118,17 @@ fun SessionDetailScreen(
             )
         }
     ) { innerPadding ->
-        val s = session
-        if (s != null) {
+        when (val state = uiState) {
+            SessionDetailUiState.Loading -> Unit
+            SessionDetailUiState.NotFound -> {
+                Text(
+                    text = "Partido no encontrado",
+                    modifier = Modifier.padding(innerPadding).padding(16.dp),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            is SessionDetailUiState.Success -> {
+                val s = state.session
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 16.dp,
@@ -129,11 +139,12 @@ fun SessionDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
+                    val sortedPlayers = remember(s.players) { s.players.sortedBy { it.playerName } }
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        s.players.sortedBy { it.playerName }.forEach { player ->
+                        sortedPlayers.forEach { player ->
                             val (bg, fg) = playerColors(player.playerName)
                             Surface(
                                 shape = MaterialTheme.shapes.small,
@@ -181,6 +192,7 @@ fun SessionDetailScreen(
                     }
                 }
             }
+        }
         }
     }
 }

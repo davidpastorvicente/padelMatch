@@ -3,12 +3,13 @@ package com.padelgroup.padelMatch.ui.statistics
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.db.dao.GameDao
-import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
+import com.padelgroup.padelMatch.data.repository.PlayerRepository
 import com.padelgroup.padelMatch.data.repository.StatisticsRepository
 import com.padelgroup.padelMatch.di.MainDispatcher
+import com.padelgroup.padelMatch.ui.navigation.PlayerDetailRoute
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,39 +36,34 @@ sealed class PlayerDetailUiState {
 
 @HiltViewModel
 class PlayerDetailViewModel @Inject constructor(
-    private val playerDao: PlayerDao,
-    private val gameDao: GameDao,
+    private val playerRepository: PlayerRepository,
     private val statisticsRepository: StatisticsRepository,
     savedStateHandle: SavedStateHandle,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val playerId: Long = checkNotNull(savedStateHandle["playerId"])
+    private val playerId: Long = savedStateHandle.toRoute<PlayerDetailRoute>().playerId
 
     private val _uiState = MutableStateFlow<PlayerDetailUiState>(PlayerDetailUiState.Loading)
     val uiState: StateFlow<PlayerDetailUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch(mainDispatcher) {
-            val player = playerDao.getById(playerId)
+            val player = playerRepository.getPlayerById(playerId)
             if (player == null) {
                 _uiState.value = PlayerDetailUiState.Error("Jugador no encontrado")
                 return@launch
             }
-            val totalGames = playerDao.countGamesForPlayer(playerId)
-            val wins = gameDao.countWinsForPlayer(playerId)
-            val losses = totalGames - wins
-            val sessionHistory = statisticsRepository.getPlayerSessionHistory(playerId)
-            val sessionsAttended = sessionHistory.size
+            val summary = statisticsRepository.getPlayerDetailSummary(playerId)
             _uiState.value = PlayerDetailUiState.Success(
                 PlayerDetailData(
                     player = player,
-                    totalGames = totalGames,
-                    wins = wins,
-                    losses = losses,
-                    winRatio = if (totalGames > 0) wins.toFloat() / totalGames else 0f,
-                    sessionsAttended = sessionsAttended,
-                    sessionHistory = sessionHistory
+                    totalGames = summary.totalGames,
+                    wins = summary.wins,
+                    losses = summary.losses,
+                    winRatio = summary.winRatio,
+                    sessionsAttended = summary.sessionsAttended,
+                    sessionHistory = summary.sessionHistory
                 )
             )
         }

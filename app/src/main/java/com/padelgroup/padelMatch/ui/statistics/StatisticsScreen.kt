@@ -37,17 +37,21 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
-    val playerStats by viewModel.playerStats.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (playerStats.isEmpty()) {
-            Text(
-                "Sin datos todavía",
-                modifier = Modifier.align(Alignment.Center),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        } else {
+        when (val state = uiState) {
+            StatisticsUiState.Loading -> Unit
+            StatisticsUiState.Empty -> {
+                Text(
+                    "Sin datos todavía",
+                    modifier = Modifier.align(Alignment.Center),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            is StatisticsUiState.Success -> {
+                val playerStats = state.playerStats
             val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
             val globalEpochRange = remember(playerStats) {
                 val allDates = playerStats.flatMap { it.history }.mapNotNull {
@@ -67,6 +71,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
                 }
                 item { Spacer(Modifier.height(80.dp)) }
             }
+        }
         }
     }
 }

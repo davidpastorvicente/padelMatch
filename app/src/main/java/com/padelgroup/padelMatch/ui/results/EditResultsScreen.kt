@@ -37,6 +37,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -118,7 +119,7 @@ fun EditResultsScreen(
                 title = { Text("Editar sets") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -150,6 +151,9 @@ fun EditResultsScreen(
                             val gameId = editable.game.id
                             val currentWinner = state.winnerOverrides[gameId]
                             val displayGame = editable.game.copy(winningPair = currentWinner)
+                            val onTeamClick = remember(gameId) { { pair: Int -> viewModel.onTeamClick(gameId, pair) } }
+                            val onEdit = remember(gameId) { { viewModel.showEditPicker(gameId) } }
+                            val onDelete = remember(gameId) { { viewModel.requestDelete(gameId) } }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
                                     modifier = Modifier.draggableHandle(),
@@ -164,9 +168,9 @@ fun EditResultsScreen(
                                 Box(modifier = Modifier.weight(1f)) {
                                     BracketGameCard(
                                         game = displayGame,
-                                        onTeamClick = { pair -> viewModel.onTeamClick(gameId, pair) },
-                                        onEdit = { viewModel.showEditPicker(gameId) },
-                                        onDelete = { viewModel.requestDelete(gameId) }
+                                        onTeamClick = onTeamClick,
+                                        onEdit = onEdit,
+                                        onDelete = onDelete
                                     )
                                 }
                             }

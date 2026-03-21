@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.ui.theme.playerColors
 import java.time.LocalDate
@@ -68,7 +68,7 @@ fun CombinedWinRatioChartScreen(
     viewModel: StatisticsViewModel,
     onBack: () -> Unit
 ) {
-    val playerStats by viewModel.playerStats.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -87,36 +87,41 @@ fun CombinedWinRatioChartScreen(
             )
         }
     ) { paddingValues ->
-        if (playerStats.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "Sin datos todavía",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        when (val state = uiState) {
+            StatisticsUiState.Loading -> Unit
+            StatisticsUiState.Empty -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Sin datos todavía",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-        } else {
-            RotatedLayout(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Column(
+            is StatisticsUiState.Success -> {
+                val playerStats = state.playerStats
+                RotatedLayout(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(paddingValues)
                 ) {
-                    CombinedWinRatioChart(
-                        playerStats = playerStats,
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    PlayerLegend(playerStats = playerStats)
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        CombinedWinRatioChart(
+                            playerStats = playerStats,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        PlayerLegend(playerStats = playerStats)
+                    }
                 }
             }
         }

@@ -103,7 +103,7 @@ class MatchHistoryViewModel @Inject constructor(
             val result = importRepository.importIfNeeded()
             _importState.update {
                 if (result.isSuccess) ImportState.Done
-                else ImportState.Error(result.exceptionOrNull()?.message ?: "Import failed")
+                else ImportState.Error(result.exceptionOrNull()?.message ?: "Error al importar")
             }
         }
     }

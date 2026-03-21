@@ -2,7 +2,6 @@ package com.padelgroup.padelMatch.ui.newmatch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.db.dao.PlayerDao
 import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
 import com.padelgroup.padelMatch.data.repository.NewMatchRepository
 import com.padelgroup.padelMatch.data.repository.PlayerRepository
@@ -38,7 +37,6 @@ class NewMatchViewModel @Inject constructor(
     private val playerRepository: PlayerRepository,
     private val newMatchRepository: NewMatchRepository,
     private val sessionRepository: SessionRepository,
-    private val playerDao: PlayerDao,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -53,10 +51,7 @@ class NewMatchViewModel @Inject constructor(
     init {
         viewModelScope.launch(mainDispatcher) {
             val players = playerRepository.getAllPlayers()
-            val deletable = players
-                .filter { playerDao.countGamesForPlayer(it.id) == 0 }
-                .map { it.id }
-                .toSet()
+            val deletable = playerRepository.getDeletablePlayerIds(players)
             _uiState.update { it.copy(players = players, deletablePlayerIds = deletable) }
             val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             val conflict = sessionRepository.sessionExistsForDate(today)

@@ -7,12 +7,22 @@ import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
 import com.padelgroup.padelMatch.data.model.PlayerStats
 import com.padelgroup.padelMatch.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
+data class PlayerDetailSummary(
+    val totalGames: Int,
+    val wins: Int,
+    val losses: Int,
+    val winRatio: Float,
+    val sessionsAttended: Int,
+    val sessionHistory: List<PlayerSessionEntry>
+)
 
 @Singleton
 class StatisticsRepository @Inject constructor(
@@ -21,9 +31,14 @@ class StatisticsRepository @Inject constructor(
     private val gameDao: GameDao,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
-    fun getPlayerStatsFlow(): Flow<List<PlayerStats>> = flow {
-        val players = playerDao.getAllPlayersList()
-        val stats = players.mapNotNull { player ->
+    fun getPlayerStatsFlow(): Flow<List<PlayerStats>> = combine(
+        playerDao.getAllPlayers(),
+        sessionDao.getAllSessions(),
+        gameDao.getGamesCountFlow()
+    ) { players, _, _ ->
+        players
+    }.map { players ->
+        players.mapNotNull { player ->
             val totalGames = playerDao.countGamesForPlayer(player.id)
             if (totalGames == 0) return@mapNotNull null
             val wins = gameDao.countWinsForPlayer(player.id)
@@ -41,10 +56,21 @@ class StatisticsRepository @Inject constructor(
                 sessionsAttended = sessionsAttended
             )
         }.sortedByDescending { it.winRatio }
-        emit(stats)
     }.flowOn(ioDispatcher)
 
-    suspend fun getPlayerSessionHistory(playerId: Long): List<PlayerSessionEntry> = withContext(ioDispatcher) {
-        sessionDao.getPlayerSessionHistory(playerId)
+
+    suspend fun getPlayerDetailSummary(playerId: Long): PlayerDetailSummary = withContext(ioDispatcher) {
+        val totalGames = playerDao.countGamesForPlayer(playerId)
+        val wins = gameDao.countWinsForPlayer(playerId)
+        val losses = totalGames - wins
+        val sessionHistory = sessionDao.getPlayerSessionHistory(playerId)
+        PlayerDetailSummary(
+            totalGames = totalGames,
+            wins = wins,
+            losses = losses,
+            winRatio = if (totalGames > 0) wins.toFloat() / totalGames else 0f,
+            sessionsAttended = sessionHistory.size,
+            sessionHistory = sessionHistory
+        )
     }
 }

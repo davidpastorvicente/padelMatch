@@ -3,10 +3,12 @@ package com.padelgroup.padelMatch.ui.results
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.padelgroup.padelMatch.data.db.entity.GameEntity
 import com.padelgroup.padelMatch.data.repository.GameWithPlayerNames
 import com.padelgroup.padelMatch.data.repository.SessionRepository
 import com.padelgroup.padelMatch.di.MainDispatcher
+import com.padelgroup.padelMatch.ui.navigation.EditResultsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,7 +46,7 @@ class EditResultsViewModel @Inject constructor(
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val sessionId: Long = checkNotNull(savedStateHandle["sessionId"])
+    private val sessionId: Long = savedStateHandle.toRoute<EditResultsRoute>().sessionId
 
     private val _uiState = MutableStateFlow(EditResultsUiState())
     val uiState: StateFlow<EditResultsUiState> = _uiState.asStateFlow()

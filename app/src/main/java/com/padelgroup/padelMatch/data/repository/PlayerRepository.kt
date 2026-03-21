@@ -17,7 +17,18 @@ class PlayerRepository @Inject constructor(
     suspend fun getAllPlayers(): List<PlayerEntity> = withContext(ioDispatcher) {
         playerDao.getAllPlayersList()
     }
-    
+
+    suspend fun getDeletablePlayerIds(players: List<PlayerEntity>): Set<Long> = withContext(ioDispatcher) {
+        players
+            .filter { playerDao.countGamesForPlayer(it.id) == 0 }
+            .map { it.id }
+            .toSet()
+    }
+
+    suspend fun getPlayerById(id: Long): PlayerEntity? = withContext(ioDispatcher) {
+        playerDao.getById(id)
+    }
+
     suspend fun addPlayer(name: String): Long = withContext(ioDispatcher) {
         playerDao.insert(PlayerEntity(name = name.trim()))
     }

@@ -32,10 +32,10 @@ class NewMatchRepository @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
     fun generateGames(playerIds: List<Long>): List<NewMatchGame> {
-        require(playerIds.size in 4..7) { "Player count must be between 4 and 7" }
+        require(playerIds.size in 4..7) { "El número de jugadores debe estar entre 4 y 7" }
         val shuffled = playerIds.shuffled()
         val template = templateRepository.getTemplate(shuffled.size)
-            ?: error("No template for ${shuffled.size} players")
+            ?: error("No existe plantilla para ${shuffled.size} jugadores")
         return template.mapIndexed { index, slots ->
             NewMatchGame(
                 gameNumber = index + 1,

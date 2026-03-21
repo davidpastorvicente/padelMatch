@@ -77,7 +77,7 @@ app/src/main/java/com/padelgroup/padelMatch/
 - Canvas tooltips: width from `Paint.measureText()` + padding; height from `fontMetrics.ascent/descent` for pixel-perfect equal padding; text positioned at baseline using `-fm.ascent` offset
 - Win ratio percentages use `roundToInt()` (never `toInt()`) everywhere; global win ratio shown with one decimal (`"%.1f%%".format(...)`)
 - Player badges sorted alphabetically wherever displayed
-- Spanish locale for all user-facing date strings (`Locale("es")`)
+- Spanish locale for all user-facing date strings (`Locale.forLanguageTag("es")`)
 - All user-facing text is in Spanish
 
 ## Build
