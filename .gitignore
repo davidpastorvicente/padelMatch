@@ -27,11 +27,15 @@ out/
 *.jks
 *.keystore
 
-# ─── OpenSpec ────────────────────────────────────────────────────────────────
-# Keep specs/, changes/, config.yaml — source of truth.
-# Exclude any generated instruction caches.
-openspec/.cache/
-openspec/changes/
+# ─── Speckit ──────────────────────────────────────────────────────────────────
+# Only track the constitution.
+.specify/**
+!.specify/memory/constitution.md
+
+# ─── GitHub agents & prompts ─────────────────────────────────────────────────
+.agents/
+.github/agents/
+.github/prompts/
 
 # ─── macOS ────────────────────────────────────────────────────────────────────
 .DS_Store
