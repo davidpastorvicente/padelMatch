@@ -36,7 +36,7 @@ jobs:
 
       - name: Build release APK
         env:
-          RELEASE_KEYSTORE_FILE: ~/.android/keystores/release.jks
+          RELEASE_KEYSTORE_FILE: /home/runner/.android/keystores/release.jks
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
