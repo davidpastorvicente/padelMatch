@@ -1,6 +1,7 @@
 package com.padelgroup.padelMatch.ui.results
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +61,17 @@ fun EditResultsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val showDiscardChangesDialog = remember { mutableStateOf(false) }
+
+    val attemptBackNavigation = remember(state.hasUnsavedChanges, state.isSaving) {
+        {
+            if (state.hasUnsavedChanges && !state.isSaving) {
+                showDiscardChangesDialog.value = true
+            } else {
+                onBack()
+            }
+        }
+    }
 
     LaunchedEffect(viewModel.navBack, lifecycleOwner) {
         viewModel.navBack
@@ -70,6 +83,29 @@ fun EditResultsScreen(
         state.error?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
+    }
+
+    BackHandler(onBack = attemptBackNavigation)
+
+    if (showDiscardChangesDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDiscardChangesDialog.value = false },
+            title = { Text("Descartar cambios") },
+            text = { Text("Hay cambios sin guardar. Si sales ahora, se perderán.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDiscardChangesDialog.value = false
+                    onBack()
+                }) {
+                    Text("Salir")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardChangesDialog.value = false }) {
+                    Text("Seguir editando")
+                }
+            }
+        )
     }
 
     // Delete confirmation dialog
@@ -118,7 +154,7 @@ fun EditResultsScreen(
             TopAppBar(
                 title = { Text("Editar sets") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = attemptBackNavigation) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }

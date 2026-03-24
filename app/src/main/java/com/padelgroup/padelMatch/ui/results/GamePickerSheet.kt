@@ -1,20 +1,25 @@
 package com.padelgroup.padelMatch.ui.results
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,9 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
-import com.padelgroup.padelMatch.ui.theme.playerColors
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamePickerSheet(
     players: List<SessionPlayerWithName>,
@@ -35,10 +39,19 @@ fun GamePickerSheet(
     onConfirm: (p1p1: Long, p1p2: Long, p2p1: Long, p2p2: Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // Maintain selection order so first 2 = pair 1, last 2 = pair 2
-    var selectedOrdered by remember { mutableStateOf(preSelected.take(4)) }
+    var pair1Player1Id by remember(preSelected) { mutableStateOf(preSelected.getOrNull(0)) }
+    var pair1Player2Id by remember(preSelected) { mutableStateOf(preSelected.getOrNull(1)) }
+    var pair2Player1Id by remember(preSelected) { mutableStateOf(preSelected.getOrNull(2)) }
+    var pair2Player2Id by remember(preSelected) { mutableStateOf(preSelected.getOrNull(3)) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    val selectedIds = listOfNotNull(pair1Player1Id, pair1Player2Id, pair2Player1Id, pair2Player2Id)
+    val isSelectionValid = selectedIds.size == 4 && selectedIds.distinct().size == 4
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,85 +60,175 @@ fun GamePickerSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = if (isEdit) "Editar jugadores" else "Nuevo partido",
+                text = if (isEdit) "Editar set" else "Nuevo set",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Selecciona 4 jugadores (los 2 primeros = Pareja A, los 2 últimos = Pareja B)",
+                text = "Selecciona los 4 jugadores para las dos parejas",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                players.forEach { player ->
-                    val (bg, fg) = playerColors(player.playerName)
-                    val position = selectedOrdered.indexOf(player.playerId) + 1 // 0 = not selected
-                    val isSelected = position > 0
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = {
-                            selectedOrdered = if (isSelected) {
-                                selectedOrdered.filter { it != player.playerId }
-                            } else if (selectedOrdered.size < 4) {
-                                selectedOrdered + player.playerId
-                            } else selectedOrdered
-                        },
-                        label = {
-                            Text(if (isSelected) "${player.playerName} ($position)" else player.playerName)
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            labelColor = fg,
-                            selectedContainerColor = bg,
-                            selectedLabelColor = fg
-                        ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = isSelected,
-                            borderColor = bg,
-                            selectedBorderColor = bg,
-                            borderWidth = 1.5.dp,
-                            selectedBorderWidth = 0.dp
-                        )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Pareja A",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    PlayerDropdown(
+                        label = "Jugador 1",
+                        selectedPlayerId = pair1Player1Id,
+                        players = players,
+                        takenPlayerIds = emptyList(),
+                        onSelected = {
+                            pair1Player1Id = it
+                            if (pair1Player2Id == it) pair1Player2Id = null
+                            if (pair2Player1Id == it) pair2Player1Id = null
+                            if (pair2Player2Id == it) pair2Player2Id = null
+                        }
+                    )
+                    PlayerDropdown(
+                        label = "Jugador 2",
+                        selectedPlayerId = pair1Player2Id,
+                        players = players,
+                        takenPlayerIds = listOfNotNull(pair1Player1Id),
+                        onSelected = {
+                            pair1Player2Id = it
+                            if (pair2Player1Id == it) pair2Player1Id = null
+                            if (pair2Player2Id == it) pair2Player2Id = null
+                        }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Pareja B",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    PlayerDropdown(
+                        label = "Jugador 1",
+                        selectedPlayerId = pair2Player1Id,
+                        players = players,
+                        takenPlayerIds = listOfNotNull(pair1Player1Id, pair1Player2Id),
+                        onSelected = {
+                            pair2Player1Id = it
+                            if (pair2Player2Id == it) pair2Player2Id = null
+                        }
+                    )
+                    PlayerDropdown(
+                        label = "Jugador 2",
+                        selectedPlayerId = pair2Player2Id,
+                        players = players,
+                        takenPlayerIds = listOfNotNull(pair1Player1Id, pair1Player2Id, pair2Player1Id),
+                        onSelected = { pair2Player2Id = it }
                     )
                 }
             }
 
-            // Preview pairs when 4 selected
-            if (selectedOrdered.size == 4) {
-                val playerMap = players.associate { it.playerId to it.playerName }
+            if (isSelectionValid) {
+                val playerMap = remember(players) { players.associate { it.playerId to it.playerName } }
                 HorizontalDivider()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Pareja A", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                        Text(playerMap[selectedOrdered[0]] ?: "?", style = MaterialTheme.typography.bodySmall)
-                        Text(playerMap[selectedOrdered[1]] ?: "?", style = MaterialTheme.typography.bodySmall)
-                    }
-                    Text("vs", style = MaterialTheme.typography.labelLarge, modifier = Modifier.align(Alignment.CenterVertically))
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Pareja B", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                        Text(playerMap[selectedOrdered[2]] ?: "?", style = MaterialTheme.typography.bodySmall)
-                        Text(playerMap[selectedOrdered[3]] ?: "?", style = MaterialTheme.typography.bodySmall)
-                    }
+                    Text(
+                        text = "${playerMap[pair1Player1Id]} y ${playerMap[pair1Player2Id]}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "vs",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${playerMap[pair2Player1Id]} y ${playerMap[pair2Player2Id]}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
             Button(
                 onClick = {
-                    if (selectedOrdered.size == 4) {
-                        onConfirm(selectedOrdered[0], selectedOrdered[1], selectedOrdered[2], selectedOrdered[3])
+                    val p1p1 = pair1Player1Id
+                    val p1p2 = pair1Player2Id
+                    val p2p1 = pair2Player1Id
+                    val p2p2 = pair2Player2Id
+                    if (p1p1 != null && p1p2 != null && p2p1 != null && p2p2 != null) {
+                        onConfirm(p1p1, p1p2, p2p1, p2p2)
                     }
                 },
-                enabled = selectedOrdered.size == 4,
+                enabled = isSelectionValid,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (isEdit) "Guardar" else "Añadir")
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlayerDropdown(
+    label: String,
+    selectedPlayerId: Long?,
+    players: List<SessionPlayerWithName>,
+    takenPlayerIds: List<Long>,
+    onSelected: (Long) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val availablePlayers = remember(players, selectedPlayerId, takenPlayerIds) {
+        players.filter { it.playerId == selectedPlayerId || it.playerId !in takenPlayerIds }
+    }
+    val selectedName = players.firstOrNull { it.playerId == selectedPlayerId }?.playerName.orEmpty()
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(start = 14.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = selectedName.ifBlank { "Selecciona un jugador" })
+                    Icon(
+                        Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                availablePlayers.forEach { player ->
+                    DropdownMenuItem(
+                        text = { Text(player.playerName) },
+                        onClick = {
+                            onSelected(player.playerId)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }

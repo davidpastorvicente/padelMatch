@@ -33,6 +33,7 @@ data class EditResultsUiState(
     val pendingDeletes: Set<Long> = emptySet(),
     val isSaving: Boolean = false,
     val isLoading: Boolean = true,
+    val hasUnsavedChanges: Boolean = false,
     val error: String? = null,
     val showAddPicker: Boolean = false,
     val editPickerGameId: Long? = null,
@@ -55,6 +56,8 @@ class EditResultsViewModel @Inject constructor(
     val navBack: SharedFlow<Unit> = _navBack.asSharedFlow()
 
     private var initialized = false
+    private var initialGames: List<EditableGame> = emptyList()
+    private var initialWinnerOverrides: Map<Long, Int?> = emptyMap()
 
     init {
         viewModelScope.launch(mainDispatcher) {
@@ -62,11 +65,13 @@ class EditResultsViewModel @Inject constructor(
                 val session = sessions.find { it.id == sessionId }
                 if (session != null && !initialized) {
                     initialized = true
+                    initialGames = session.games.map { EditableGame(it) }
+                    initialWinnerOverrides = session.games.associate { it.id to it.winningPair }
                     _uiState.update { state ->
                         state.copy(
-                            games = session.games.map { EditableGame(it) },
+                            games = initialGames,
                             sessionPlayers = session.players,
-                            winnerOverrides = session.games.associate { it.id to it.winningPair },
+                            winnerOverrides = initialWinnerOverrides,
                             isLoading = false
                         )
                     }
@@ -76,7 +81,7 @@ class EditResultsViewModel @Inject constructor(
     }
 
     fun onTeamClick(gameId: Long, pair: Int) {
-        _uiState.update { state ->
+        updateUiState { state ->
             val current = state.winnerOverrides[gameId]
             val newValue = if (current == pair) null else pair
             state.copy(winnerOverrides = state.winnerOverrides + (gameId to newValue))
@@ -87,7 +92,7 @@ class EditResultsViewModel @Inject constructor(
     fun cancelDelete() = _uiState.update { it.copy(deleteConfirmGameId = null) }
 
     fun confirmDelete(gameId: Long) {
-        _uiState.update { state ->
+        updateUiState { state ->
             state.copy(
                 games = state.games.filterNot { it.game.id == gameId },
                 pendingDeletes = if (gameId > 0) state.pendingDeletes + gameId else state.pendingDeletes,
@@ -103,7 +108,7 @@ class EditResultsViewModel @Inject constructor(
     fun hideEditPicker() = _uiState.update { it.copy(editPickerGameId = null) }
 
     fun addGame(p1p1Id: Long, p1p2Id: Long, p2p1Id: Long, p2p2Id: Long) {
-        _uiState.update { state ->
+        updateUiState { state ->
             val playerMap = state.sessionPlayers.associate { it.playerId to it.playerName }
             val nextNumber = (state.games.maxOfOrNull { it.game.gameNumber } ?: 0) + 1
             // Use negative temp ID to distinguish new games
@@ -132,10 +137,15 @@ class EditResultsViewModel @Inject constructor(
     }
 
     fun editGame(gameId: Long, p1p1Id: Long, p1p2Id: Long, p2p1Id: Long, p2p2Id: Long) {
-        _uiState.update { state ->
+        updateUiState { state ->
             val playerMap = state.sessionPlayers.associate { it.playerId to it.playerName }
             val games = state.games.map { eg ->
                 if (eg.game.id == gameId) {
+                    val playersChanged = eg.game.pair1Player1Id != p1p1Id ||
+                        eg.game.pair1Player2Id != p1p2Id ||
+                        eg.game.pair2Player1Id != p2p1Id ||
+                        eg.game.pair2Player2Id != p2p2Id
+                    val preservedWinner = if (playersChanged) null else (state.winnerOverrides[gameId] ?: eg.game.winningPair)
                     eg.copy(game = eg.game.copy(
                         pair1Player1 = playerMap[p1p1Id] ?: "?",
                         pair1Player2 = playerMap[p1p2Id] ?: "?",
@@ -145,24 +155,27 @@ class EditResultsViewModel @Inject constructor(
                         pair1Player2Id = p1p2Id,
                         pair2Player1Id = p2p1Id,
                         pair2Player2Id = p2p2Id,
-                        winningPair = null
+                        winningPair = preservedWinner
                     ))
                 } else eg
             }
             state.copy(
                 games = games,
-                winnerOverrides = state.winnerOverrides + (gameId to null),
+                winnerOverrides = state.winnerOverrides + (gameId to games.first { it.game.id == gameId }.game.winningPair),
                 editPickerGameId = null
             )
         }
     }
 
     fun reorderGames(fromIndex: Int, toIndex: Int) {
-        _uiState.update { state ->
+        updateUiState { state ->
             val games = state.games.toMutableList()
-            if (fromIndex < 0 || toIndex < 0 || fromIndex >= games.size || toIndex >= games.size) return@update state
-            games.add(toIndex, games.removeAt(fromIndex))
-            state.copy(games = games)
+            if (fromIndex < 0 || toIndex < 0 || fromIndex >= games.size || toIndex >= games.size) {
+                state
+            } else {
+                games.add(toIndex, games.removeAt(fromIndex))
+                state.copy(games = games)
+            }
         }
     }
 
@@ -187,28 +200,50 @@ class EditResultsViewModel @Inject constructor(
                     winningPair = state.winnerOverrides[eg.game.id]
                 )
             }
-            val existingWinners = state.winnerOverrides.filterKeys { id ->
-                id > 0 && id !in state.pendingDeletes
-            }
-            // Map existing game IDs to their new game numbers
-            val gameNumberUpdates = renumbered
+            val toUpdate = renumbered
                 .filter { !it.isNew && it.game.id !in state.pendingDeletes }
-                .associate { it.game.id to it.game.gameNumber }
+                .map { eg ->
+                    GameEntity(
+                        id = eg.game.id,
+                        sessionId = sessionId,
+                        gameNumber = eg.game.gameNumber,
+                        pair1Player1Id = eg.game.pair1Player1Id,
+                        pair1Player2Id = eg.game.pair1Player2Id,
+                        pair2Player1Id = eg.game.pair2Player1Id,
+                        pair2Player2Id = eg.game.pair2Player2Id,
+                        pair1Score = eg.game.pair1Score,
+                        pair2Score = eg.game.pair2Score,
+                        winningPair = state.winnerOverrides[eg.game.id]
+                    )
+                }
 
             runCatching {
-                sessionRepository.updateGameWinners(
+                sessionRepository.updateSessionGames(
                     sessionId = sessionId,
-                    winners = existingWinners,
                     toDelete = state.pendingDeletes,
                     toInsert = toInsert,
-                    gameNumberUpdates = gameNumberUpdates
+                    toUpdate = toUpdate
                 )
             }.onSuccess {
-                _uiState.update { it.copy(isSaving = false, error = null) }
+                _uiState.update { it.copy(isSaving = false, error = null, hasUnsavedChanges = false) }
                 _navBack.emit(Unit)
             }.onFailure { e ->
                 _uiState.update { it.copy(isSaving = false, error = e.message ?: "Error al guardar") }
             }
         }
+    }
+
+    private fun updateUiState(transform: (EditResultsUiState) -> EditResultsUiState) {
+        _uiState.update { state ->
+            val updatedState = transform(state)
+            updatedState.copy(hasUnsavedChanges = hasUnsavedChanges(updatedState))
+        }
+    }
+
+    private fun hasUnsavedChanges(state: EditResultsUiState): Boolean {
+        if (state.pendingDeletes.isNotEmpty()) return true
+        if (state.games.size != initialGames.size) return true
+        if (state.winnerOverrides != initialWinnerOverrides) return true
+        return state.games != initialGames
     }
 }

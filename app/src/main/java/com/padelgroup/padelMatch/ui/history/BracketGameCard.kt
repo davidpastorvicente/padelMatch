@@ -122,7 +122,12 @@ private fun TeamPanel(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 12.dp),
+                .padding(
+                    start = if (alignEnd) 10.dp else 14.dp,
+                    top = 12.dp,
+                    end = if (alignEnd) 14.dp else 10.dp,
+                    bottom = 12.dp
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

@@ -55,6 +55,7 @@ app/src/main/java/com/padelgroup/padelMatch/
 - Memoize expensive computations inside composables with `remember(key) { ... }`
 - Use `remember` for sorted lists, color lookups (`playerColors()`), date parsing, Paint objects
 - Prefer `MutableState.value` over `by` delegate when IDE warns about unused assignments
+- Always consider the `mobile-android-design` skill before making Android UI, UX, navigation, or Material 3 changes
 
 ### Architecture
 - ViewModels expose `StateFlow<UiState>` and `SharedFlow<Event>` (for one-shot navigation/toasts)

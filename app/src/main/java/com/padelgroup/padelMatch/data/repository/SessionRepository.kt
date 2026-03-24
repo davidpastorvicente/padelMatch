@@ -8,6 +8,7 @@ import com.padelgroup.padelMatch.data.db.entity.GameEntity
 import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
 import com.padelgroup.padelMatch.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -51,7 +52,13 @@ class SessionRepository @Inject constructor(
      * on the [ioDispatcher] to ensure main-safety and efficiency.
      */
     fun getAllSessionsFlow(): Flow<List<SessionWithDetails>> =
-        sessionDao.getAllSessions().map { sessions ->
+        combine(
+            sessionDao.getAllSessions(),
+            gameDao.getGamesCountFlow(),
+            sessionDao.getSessionPlayersCountFlow()
+        ) { sessions, _, _ ->
+            sessions
+        }.map { sessions ->
             val allPlayers = playerDao.getAllPlayersList()
             val playerMap = allPlayers.associate { it.id to it.name }
             
@@ -75,29 +82,24 @@ class SessionRepository @Inject constructor(
         sessionDao.deleteSession(sessionId)
     }
 
-    suspend fun updateGameWinners(
+    suspend fun updateSessionGames(
         sessionId: Long,
-        winners: Map<Long, Int?>,
         toDelete: Set<Long> = emptySet(),
         toInsert: List<GameEntity> = emptyList(),
-        gameNumberUpdates: Map<Long, Int> = emptyMap()
+        toUpdate: List<GameEntity> = emptyList()
     ) = withContext(ioDispatcher) {
         toDelete.forEach { gameDao.deleteGame(it) }
         toInsert.forEach { gameDao.insertGame(it) }
-        winners.forEach { (gameId, winningPair) ->
-            if (gameId !in toDelete) gameDao.updateGameWinner(gameId, winningPair)
-        }
-        gameNumberUpdates.forEach { (gameId, number) ->
-            gameDao.updateGameNumber(gameId, number)
+        toUpdate.forEach { game ->
+            if (game.id !in toDelete) gameDao.update(game)
         }
         // Recalculate win ratios based on final game list
         val games = gameDao.getGamesForSession(sessionId)
-        val updatedGames = games.map { g -> g.copy(winningPair = winners[g.id] ?: g.winningPair) }
         val players = sessionDao.getSessionPlayersWithNames(sessionId)
         val playerIds = players.map { it.playerId }
         val wins = mutableMapOf<Long, Int>().apply { playerIds.forEach { put(it, 0) } }
         val totals = mutableMapOf<Long, Int>().apply { playerIds.forEach { put(it, 0) } }
-        updatedGames.forEach { g ->
+        games.forEach { g ->
             listOf(g.pair1Player1Id, g.pair1Player2Id, g.pair2Player1Id, g.pair2Player2Id)
                 .forEach { totals[it] = (totals[it] ?: 0) + 1 }
             when (g.winningPair) {

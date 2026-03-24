@@ -41,6 +41,9 @@ interface SessionDao {
     @Query("SELECT date FROM sessions ORDER BY date ASC")
     fun getAllSessionDates(): Flow<List<String>>
 
+    @Query("SELECT COUNT(*) FROM session_players")
+    fun getSessionPlayersCountFlow(): Flow<Int>
+
     @Query("""
         SELECT sp.winRatio FROM session_players sp
         JOIN sessions s ON s.id = sp.sessionId

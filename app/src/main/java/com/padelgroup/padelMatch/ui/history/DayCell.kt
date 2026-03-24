@@ -28,7 +28,6 @@ fun DayCell(
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    val primaryContainerColor = MaterialTheme.colorScheme.primaryContainer
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
@@ -36,9 +35,7 @@ fun DayCell(
             .padding(2.dp)
             .clip(CircleShape)
             .then(
-                if (isSelected) Modifier.background(primaryColor)
-                else if (hasSession) Modifier.background(primaryContainerColor)
-                else Modifier
+                if (isSelected) Modifier.background(primaryColor) else Modifier
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
