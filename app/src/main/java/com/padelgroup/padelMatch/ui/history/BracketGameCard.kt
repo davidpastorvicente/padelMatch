@@ -49,6 +49,22 @@ fun BracketGameCard(
             modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (onEdit != null) {
+                IconButton(
+                    onClick = onEdit,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Editar",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             // Team A panel (left)
             TeamPanel(
                 player1 = game.pair1Player1,
@@ -79,22 +95,19 @@ fun BracketGameCard(
                     .then(if (onTeamClick != null) Modifier.clickable { onTeamClick(2) } else Modifier)
             )
 
-            // Action buttons (far right)
-            if (onEdit != null || onDelete != null) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+            if (onDelete != null) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(40.dp)
                 ) {
-                    if (onEdit != null) {
-                        IconButton(onClick = onEdit, modifier = Modifier.size(40.dp)) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    if (onDelete != null) {
-                        IconButton(onClick = onDelete, modifier = Modifier.size(40.dp)) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
-                        }
-                    }
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Eliminar",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
