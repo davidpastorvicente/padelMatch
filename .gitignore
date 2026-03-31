@@ -27,16 +27,15 @@ out/
 *.jks
 *.keystore
 
-# ─── Speckit ──────────────────────────────────────────────────────────────────
-# Only track the constitution.
+# Spec-driven
+.sisyphus/
 .specify/**
 !.specify/memory/constitution.md
 
-# ─── GitHub agents & prompts ─────────────────────────────────────────────────
+# GitHub agents & prompts
 .agents/
 .github/agents/
 .github/prompts/
 
-# ─── macOS ────────────────────────────────────────────────────────────────────
-.DS_Store
+# ─── macOS
 **/.DS_Store
