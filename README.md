@@ -36,7 +36,7 @@ An Android app for tracking padel match sessions with your regular group. Record
 ## Project Structure
 
 ```
-app/src/main/java/com/padelgroup/padelMatch/
+app/src/main/java/com/davidpv/padelmatch/
 ├── data/
 │   ├── db/          # Room database, DAOs, entities
 │   ├── model/       # Domain models

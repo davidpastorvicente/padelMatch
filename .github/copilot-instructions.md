@@ -19,7 +19,7 @@ PadelMatch is an Android app for tracking padel match sessions. Users record ses
 ## Project Structure
 
 ```
-app/src/main/java/com/padelgroup/padelMatch/
+app/src/main/java/com/davidpv/padelmatch/
 ├── data/
 │   ├── db/           # Room database, DAOs, entities
 │   ├── model/        # Domain data classes (PlayerStats, PlayerSessionEntry, …)
