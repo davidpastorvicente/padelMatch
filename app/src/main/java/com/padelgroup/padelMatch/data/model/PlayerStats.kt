@@ -1,6 +1,6 @@
-package com.padelgroup.padelMatch.data.model
+package com.davidpv.padelmatch.data.model
 
-import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
+import com.davidpv.padelmatch.data.db.entity.PlayerEntity
 
 data class PlayerStats(
     val player: PlayerEntity,

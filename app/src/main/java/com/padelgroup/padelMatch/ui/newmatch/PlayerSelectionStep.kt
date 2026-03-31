@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.newmatch
+package com.davidpv.padelmatch.ui.newmatch
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.padelgroup.padelMatch.ui.theme.playerColors
+import com.davidpv.padelmatch.ui.theme.playerColors
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

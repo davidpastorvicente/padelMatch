@@ -1,19 +1,19 @@
-package com.padelgroup.padelMatch.ui.navigation
+package com.davidpv.padelmatch.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
-import com.padelgroup.padelMatch.ui.newmatch.NewMatchScreen
-import com.padelgroup.padelMatch.ui.results.EditResultsScreen
-import com.padelgroup.padelMatch.ui.results.EditResultsViewModel
-import com.padelgroup.padelMatch.ui.session.SessionDetailScreen
-import com.padelgroup.padelMatch.ui.session.SessionDetailViewModel
-import com.padelgroup.padelMatch.ui.statistics.CombinedWinRatioChartScreen
-import com.padelgroup.padelMatch.ui.statistics.PlayerDetailScreen
-import com.padelgroup.padelMatch.ui.statistics.PlayerDetailViewModel
+import com.davidpv.padelmatch.ui.history.MatchHistoryViewModel
+import com.davidpv.padelmatch.ui.newmatch.NewMatchScreen
+import com.davidpv.padelmatch.ui.results.EditResultsScreen
+import com.davidpv.padelmatch.ui.results.EditResultsViewModel
+import com.davidpv.padelmatch.ui.session.SessionDetailScreen
+import com.davidpv.padelmatch.ui.session.SessionDetailViewModel
+import com.davidpv.padelmatch.ui.statistics.CombinedWinRatioChartScreen
+import com.davidpv.padelmatch.ui.statistics.PlayerDetailScreen
+import com.davidpv.padelmatch.ui.statistics.PlayerDetailViewModel
 
 @Composable
 fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
@@ -29,7 +29,7 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             )
         }
         composable<NewMatchRoute> {
-            val newMatchViewModel = hiltViewModel<com.padelgroup.padelMatch.ui.newmatch.NewMatchViewModel>()
+            val newMatchViewModel = hiltViewModel<com.davidpv.padelmatch.ui.newmatch.NewMatchViewModel>()
             NewMatchScreen(
                 viewModel = newMatchViewModel,
                 onSaved = { sessionId ->
@@ -63,7 +63,7 @@ fun AppNavigation(historyViewModel: MatchHistoryViewModel) {
             )
         }
         composable<CombinedChartRoute> {
-            val statisticsViewModel = hiltViewModel<com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel>()
+            val statisticsViewModel = hiltViewModel<com.davidpv.padelmatch.ui.statistics.StatisticsViewModel>()
             CombinedWinRatioChartScreen(
                 viewModel = statisticsViewModel,
                 onBack = { navController.popBackStack() }

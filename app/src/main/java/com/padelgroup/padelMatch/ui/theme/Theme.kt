@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.theme
+package com.davidpv.padelmatch.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

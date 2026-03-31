@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.padelgroup.padelMatch.ui.navigation
+package com.davidpv.padelmatch.ui.navigation
 
 import kotlinx.serialization.Serializable
 

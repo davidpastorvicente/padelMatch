@@ -1,9 +1,9 @@
-package com.padelgroup.padelMatch.ui.statistics
+package com.davidpv.padelmatch.ui.statistics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.model.PlayerStats
-import com.padelgroup.padelMatch.data.repository.StatisticsRepository
+import com.davidpv.padelmatch.data.model.PlayerStats
+import com.davidpv.padelmatch.data.repository.StatisticsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

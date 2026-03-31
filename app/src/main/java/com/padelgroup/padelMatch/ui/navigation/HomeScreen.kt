@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.navigation
+package com.davidpv.padelmatch.ui.navigation
 
 import android.content.Intent
 import android.widget.Toast
@@ -40,11 +40,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.padelgroup.padelMatch.ui.history.MatchHistoryScreen
-import com.padelgroup.padelMatch.ui.history.MatchHistoryViewModel
-import com.padelgroup.padelMatch.ui.history.OverflowMenu
-import com.padelgroup.padelMatch.ui.statistics.StatisticsScreen
-import com.padelgroup.padelMatch.ui.statistics.StatisticsViewModel
+import com.davidpv.padelmatch.ui.history.MatchHistoryScreen
+import com.davidpv.padelmatch.ui.history.MatchHistoryViewModel
+import com.davidpv.padelmatch.ui.history.OverflowMenu
+import com.davidpv.padelmatch.ui.statistics.StatisticsScreen
+import com.davidpv.padelmatch.ui.statistics.StatisticsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

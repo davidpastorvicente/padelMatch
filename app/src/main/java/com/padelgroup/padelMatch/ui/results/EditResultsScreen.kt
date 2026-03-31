@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.results
+package com.davidpv.padelmatch.ui.results
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -48,7 +48,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.padelgroup.padelMatch.ui.history.BracketGameCard
+import com.davidpv.padelmatch.ui.history.BracketGameCard
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 

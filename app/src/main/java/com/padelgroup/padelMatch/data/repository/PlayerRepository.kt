@@ -1,8 +1,8 @@
-package com.padelgroup.padelMatch.data.repository
+package com.davidpv.padelmatch.data.repository
 
-import com.padelgroup.padelMatch.data.db.dao.PlayerDao
-import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
-import com.padelgroup.padelMatch.di.IoDispatcher
+import com.davidpv.padelmatch.data.db.dao.PlayerDao
+import com.davidpv.padelmatch.data.db.entity.PlayerEntity
+import com.davidpv.padelmatch.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

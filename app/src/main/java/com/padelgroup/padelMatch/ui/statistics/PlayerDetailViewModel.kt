@@ -1,14 +1,14 @@
-package com.padelgroup.padelMatch.ui.statistics
+package com.davidpv.padelmatch.ui.statistics
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
-import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
-import com.padelgroup.padelMatch.data.repository.PlayerRepository
-import com.padelgroup.padelMatch.data.repository.StatisticsRepository
-import com.padelgroup.padelMatch.di.MainDispatcher
-import com.padelgroup.padelMatch.ui.navigation.PlayerDetailRoute
+import com.davidpv.padelmatch.data.db.entity.PlayerEntity
+import com.davidpv.padelmatch.data.model.PlayerSessionEntry
+import com.davidpv.padelmatch.data.repository.PlayerRepository
+import com.davidpv.padelmatch.data.repository.StatisticsRepository
+import com.davidpv.padelmatch.di.MainDispatcher
+import com.davidpv.padelmatch.ui.navigation.PlayerDetailRoute
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher

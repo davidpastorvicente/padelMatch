@@ -1,13 +1,13 @@
-package com.padelgroup.padelMatch.ui.session
+package com.davidpv.padelmatch.ui.session
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.padelgroup.padelMatch.data.repository.SessionRepository
-import com.padelgroup.padelMatch.data.repository.SessionWithDetails
-import com.padelgroup.padelMatch.di.MainDispatcher
-import com.padelgroup.padelMatch.ui.navigation.SessionDetailRoute
+import com.davidpv.padelmatch.data.repository.SessionRepository
+import com.davidpv.padelmatch.data.repository.SessionWithDetails
+import com.davidpv.padelmatch.di.MainDispatcher
+import com.davidpv.padelmatch.ui.navigation.SessionDetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow

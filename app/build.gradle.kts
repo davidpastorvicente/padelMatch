@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.padelgroup.padelMatch"
+    namespace = "com.davidpv.padelmatch"
     compileSdk = 36
 
     val releaseKeystoreFile = System.getenv("RELEASE_KEYSTORE_FILE")
@@ -20,7 +20,7 @@ android {
         !releaseKeyPassword.isNullOrBlank()
 
     defaultConfig {
-        applicationId = "com.padelgroup.padelMatch"
+        applicationId = "com.davidpv.padelmatch"
         minSdk = 26
         targetSdk = 36
 

@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.data.format
+package com.davidpv.padelmatch.data.format
 
 import kotlinx.serialization.Serializable
 

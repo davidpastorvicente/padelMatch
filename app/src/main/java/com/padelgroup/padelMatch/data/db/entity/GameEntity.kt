@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.data.db.entity
+package com.davidpv.padelmatch.data.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

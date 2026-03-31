@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.data.model
+package com.davidpv.padelmatch.data.model
 
 data class PlayerSessionEntry(
     val sessionId: Long,

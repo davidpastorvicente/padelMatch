@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.results
+package com.davidpv.padelmatch.ui.results
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
+import com.davidpv.padelmatch.data.db.dao.SessionPlayerWithName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

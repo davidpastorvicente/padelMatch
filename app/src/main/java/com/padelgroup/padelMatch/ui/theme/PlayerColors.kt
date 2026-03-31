@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.theme
+package com.davidpv.padelmatch.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

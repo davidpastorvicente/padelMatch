@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.statistics
+package com.davidpv.padelmatch.ui.statistics
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
-import com.padelgroup.padelMatch.data.model.PlayerStats
-import com.padelgroup.padelMatch.ui.theme.playerColors
+import com.davidpv.padelmatch.data.model.PlayerSessionEntry
+import com.davidpv.padelmatch.data.model.PlayerStats
+import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

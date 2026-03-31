@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.history
+package com.davidpv.padelmatch.ui.history
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween

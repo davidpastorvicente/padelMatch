@@ -1,11 +1,11 @@
-package com.padelgroup.padelMatch.di
+package com.davidpv.padelmatch.di
 
 import android.content.Context
 import androidx.room.Room
-import com.padelgroup.padelMatch.data.db.AppDatabase
-import com.padelgroup.padelMatch.data.db.dao.GameDao
-import com.padelgroup.padelMatch.data.db.dao.PlayerDao
-import com.padelgroup.padelMatch.data.db.dao.SessionDao
+import com.davidpv.padelmatch.data.db.AppDatabase
+import com.davidpv.padelmatch.data.db.dao.GameDao
+import com.davidpv.padelmatch.data.db.dao.PlayerDao
+import com.davidpv.padelmatch.data.db.dao.SessionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

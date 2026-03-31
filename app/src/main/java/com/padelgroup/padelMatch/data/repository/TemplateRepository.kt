@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.data.repository
+package com.davidpv.padelmatch.data.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton

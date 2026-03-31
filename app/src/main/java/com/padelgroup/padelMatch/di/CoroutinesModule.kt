@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.di
+package com.davidpv.padelmatch.di
 
 import dagger.Module
 import dagger.Provides

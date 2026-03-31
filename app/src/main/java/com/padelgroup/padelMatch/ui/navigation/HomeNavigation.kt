@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.navigation
+package com.davidpv.padelmatch.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart

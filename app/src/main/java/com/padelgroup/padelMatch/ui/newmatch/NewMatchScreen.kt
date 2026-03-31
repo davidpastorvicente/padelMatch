@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.newmatch
+package com.davidpv.padelmatch.ui.newmatch
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

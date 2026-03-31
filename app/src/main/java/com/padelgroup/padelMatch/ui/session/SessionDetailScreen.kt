@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.session
+package com.davidpv.padelmatch.ui.session
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
@@ -36,10 +36,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.padelgroup.padelMatch.data.repository.SessionWithDetails
-import com.padelgroup.padelMatch.ui.history.BracketGameCard
-import com.padelgroup.padelMatch.ui.history.ClassificationChart
-import com.padelgroup.padelMatch.ui.theme.playerColors
+import com.davidpv.padelmatch.data.repository.SessionWithDetails
+import com.davidpv.padelmatch.ui.history.BracketGameCard
+import com.davidpv.padelmatch.ui.history.ClassificationChart
+import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale

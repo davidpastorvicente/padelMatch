@@ -1,16 +1,16 @@
-package com.padelgroup.padelMatch.data.exporter
+package com.davidpv.padelmatch.data.exporter
 
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
-import com.padelgroup.padelMatch.data.db.dao.GameDao
-import com.padelgroup.padelMatch.data.db.dao.PlayerDao
-import com.padelgroup.padelMatch.data.db.dao.SessionDao
-import com.padelgroup.padelMatch.data.format.JsonGame
-import com.padelgroup.padelMatch.data.format.JsonPlayer
-import com.padelgroup.padelMatch.data.format.JsonSession
-import com.padelgroup.padelMatch.data.format.PadelMatchExport
-import com.padelgroup.padelMatch.di.IoDispatcher
+import com.davidpv.padelmatch.data.db.dao.GameDao
+import com.davidpv.padelmatch.data.db.dao.PlayerDao
+import com.davidpv.padelmatch.data.db.dao.SessionDao
+import com.davidpv.padelmatch.data.format.JsonGame
+import com.davidpv.padelmatch.data.format.JsonPlayer
+import com.davidpv.padelmatch.data.format.JsonSession
+import com.davidpv.padelmatch.data.format.PadelMatchExport
+import com.davidpv.padelmatch.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

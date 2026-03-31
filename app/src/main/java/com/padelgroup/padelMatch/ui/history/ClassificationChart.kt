@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.history
+package com.davidpv.padelmatch.ui.history
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName
-import com.padelgroup.padelMatch.ui.theme.playerColors
+import com.davidpv.padelmatch.data.db.dao.SessionPlayerWithName
+import com.davidpv.padelmatch.ui.theme.playerColors
 import kotlin.math.roundToInt
 
 @Composable

@@ -1,15 +1,15 @@
-package com.padelgroup.padelMatch.ui.history
+package com.davidpv.padelmatch.ui.history
 
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.exporter.JsonExporter
-import com.padelgroup.padelMatch.data.importer.JsonImporter
-import com.padelgroup.padelMatch.data.repository.ImportRepository
-import com.padelgroup.padelMatch.data.repository.SessionRepository
-import com.padelgroup.padelMatch.data.repository.SessionWithDetails
-import com.padelgroup.padelMatch.di.MainDispatcher
+import com.davidpv.padelmatch.data.exporter.JsonExporter
+import com.davidpv.padelmatch.data.importer.JsonImporter
+import com.davidpv.padelmatch.data.repository.ImportRepository
+import com.davidpv.padelmatch.data.repository.SessionRepository
+import com.davidpv.padelmatch.data.repository.SessionWithDetails
+import com.davidpv.padelmatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher

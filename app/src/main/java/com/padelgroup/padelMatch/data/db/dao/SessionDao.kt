@@ -1,12 +1,12 @@
-package com.padelgroup.padelMatch.data.db.dao
+package com.davidpv.padelmatch.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.padelgroup.padelMatch.data.db.entity.SessionEntity
-import com.padelgroup.padelMatch.data.db.entity.SessionPlayerEntity
-import com.padelgroup.padelMatch.data.model.PlayerSessionEntry
+import com.davidpv.padelmatch.data.db.entity.SessionEntity
+import com.davidpv.padelmatch.data.db.entity.SessionPlayerEntity
+import com.davidpv.padelmatch.data.model.PlayerSessionEntry
 import kotlinx.coroutines.flow.Flow
 
 @Dao

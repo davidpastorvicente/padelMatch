@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.history
+package com.davidpv.padelmatch.ui.history
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.padelgroup.padelMatch.data.repository.SessionWithDetails
-import com.padelgroup.padelMatch.ui.theme.playerColors
+import com.davidpv.padelmatch.data.repository.SessionWithDetails
+import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale

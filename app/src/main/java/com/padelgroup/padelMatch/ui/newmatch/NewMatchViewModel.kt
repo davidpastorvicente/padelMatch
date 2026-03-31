@@ -1,12 +1,12 @@
-package com.padelgroup.padelMatch.ui.newmatch
+package com.davidpv.padelmatch.ui.newmatch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.padelgroup.padelMatch.data.db.entity.PlayerEntity
-import com.padelgroup.padelMatch.data.repository.NewMatchRepository
-import com.padelgroup.padelMatch.data.repository.PlayerRepository
-import com.padelgroup.padelMatch.data.repository.SessionRepository
-import com.padelgroup.padelMatch.di.MainDispatcher
+import com.davidpv.padelmatch.data.db.entity.PlayerEntity
+import com.davidpv.padelmatch.data.repository.NewMatchRepository
+import com.davidpv.padelmatch.data.repository.PlayerRepository
+import com.davidpv.padelmatch.data.repository.SessionRepository
+import com.davidpv.padelmatch.di.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow

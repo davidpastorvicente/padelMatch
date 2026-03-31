@@ -1,4 +1,4 @@
-package com.padelgroup.padelMatch.ui.history
+package com.davidpv.padelmatch.ui.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

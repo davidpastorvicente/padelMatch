@@ -1,14 +1,14 @@
-package com.padelgroup.padelMatch.ui.results
+package com.davidpv.padelmatch.ui.results
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.padelgroup.padelMatch.data.db.entity.GameEntity
-import com.padelgroup.padelMatch.data.repository.GameWithPlayerNames
-import com.padelgroup.padelMatch.data.repository.SessionRepository
-import com.padelgroup.padelMatch.di.MainDispatcher
-import com.padelgroup.padelMatch.ui.navigation.EditResultsRoute
+import com.davidpv.padelmatch.data.db.entity.GameEntity
+import com.davidpv.padelmatch.data.repository.GameWithPlayerNames
+import com.davidpv.padelmatch.data.repository.SessionRepository
+import com.davidpv.padelmatch.di.MainDispatcher
+import com.davidpv.padelmatch.ui.navigation.EditResultsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,7 +28,7 @@ data class EditableGame(
 
 data class EditResultsUiState(
     val games: List<EditableGame> = emptyList(),
-    val sessionPlayers: List<com.padelgroup.padelMatch.data.db.dao.SessionPlayerWithName> = emptyList(),
+    val sessionPlayers: List<com.davidpv.padelmatch.data.db.dao.SessionPlayerWithName> = emptyList(),
     val winnerOverrides: Map<Long, Int?> = emptyMap(),
     val pendingDeletes: Set<Long> = emptySet(),
     val isSaving: Boolean = false,
