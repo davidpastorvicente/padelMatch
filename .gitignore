@@ -1,41 +1,44 @@
-# ─── Android / Gradle ────────────────────────────────────────────────────────
-*.iml
-local.properties
-build/
-/captures
-.externalNativeBuild
-.cxx
-*.apk
-*.aab
-*.ap_
-*.dex
+# ─── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
 
-# Android Studio / IntelliJ
-/.idea/
+# ─── Android Studio / IntelliJ ────────────────────────────────────────────────
+.idea/
+*.iml
 *.iws
 *.ipr
 out/
 
-# Kotlin build artefacts
-/app/build/
-/app/.cxx/
-
-# Gradle caches
+# ─── Gradle / Kotlin ──────────────────────────────────────────────────────────
 .gradle/
+.kotlin/
+build/
+**/build/
 
-# Keystore files — never commit these
+# ─── Local machine configuration ──────────────────────────────────────────────
+local.properties
+
+# ─── Signing / secrets ────────────────────────────────────────────────────────
 *.jks
 *.keystore
+keystore.properties
 
-# Spec-driven
+# ─── Android build outputs ────────────────────────────────────────────────────
+*.apk
+*.aab
+*.ap_
+*.dex
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ─── Logs / reports ───────────────────────────────────────────────────────────
+*.log
+coverage/
+
+# ─── Project-specific ─────────────────────────────────────────────────────────
 .sisyphus/
 .specify/**
 !.specify/memory/constitution.md
-
-# GitHub agents & prompts
 .agents/
 .github/agents/
 .github/prompts/
-
-# ─── macOS
-**/.DS_Store
