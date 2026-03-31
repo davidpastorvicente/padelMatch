@@ -23,8 +23,24 @@ android {
         applicationId = "com.padelgroup.padelMatch"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+
+        val tagVersion = try {
+            providers.exec {
+                commandLine("git", "describe", "--tags", "--abbrev=0")
+            }.standardOutput.asText.get().trim().removePrefix("v")
+        } catch (_: Exception) {
+            "0.0.0"
+        }
+        val commitCount = try {
+            providers.exec {
+                commandLine("git", "rev-list", "--count", "HEAD")
+            }.standardOutput.asText.get().trim().toIntOrNull() ?: 1
+        } catch (_: Exception) {
+            1
+        }
+
+        versionCode = commitCount
+        versionName = tagVersion
     }
 
     signingConfigs {
