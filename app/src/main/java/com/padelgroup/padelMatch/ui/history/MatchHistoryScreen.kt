@@ -248,7 +248,9 @@ private fun EmptyState(onNewMatch: () -> Unit, modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold
         )
         Text(
-            "Crea tu primer partido para empezar a registrar tus resultados.",
+            "Crea tu primer partido para empezar a registrar tus resultados",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
