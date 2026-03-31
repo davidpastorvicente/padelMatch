@@ -1,4 +1,4 @@
-[![Build Debug APK](https://github.com/davidpastorvicente/padelMatch/actions/workflows/debug-apk.yml/badge.svg)](https://github.com/davidpastorvicente/padelMatch/actions/workflows/debug-apk.yml)
+[![Release APK](https://github.com/davidpastorvicente/padelMatch/actions/workflows/release-apk.yml/badge.svg)](https://github.com/davidpastorvicente/padelMatch/actions/workflows/release-apk.yml)
 
 # PadelMatch
 
