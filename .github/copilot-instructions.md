@@ -2,98 +2,105 @@
 
 ## Project Overview
 
-PadelMatch is an Android app for tracking padel match sessions. Users record sessions (one per day), each containing multiple sets (bracket games between pairs of players). The app tracks player statistics and win-ratio trends over time.
+PadelMatch is an Android app for tracking padel match sessions. Users record sessions, each session contains multiple sets, and the app computes player statistics and win-ratio trends over time.
+
+## Build Commands
+
+```bash
+# Debug APK
+./gradlew assembleDebug
+
+# Clean debug build
+./gradlew clean assembleDebug
+
+# Install with ADB
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+Requires JDK 21 (JetBrains). Set `JAVA_HOME` to your JetBrains JDK 21 install when building from the CLI.
 
 ## Tech Stack
 
 - **Language**: Kotlin 2.0
 - **UI**: Jetpack Compose + Material 3
 - **Architecture**: MVVM + Repository pattern
-- **DI**: Hilt (`@HiltViewModel`, `@Inject`, `@Singleton`)
-- **Database**: Room (SQLite) with DAOs and Flow
-- **Navigation**: Compose Navigation with typed routes (kotlinx.serialization)
+- **DI**: Hilt
+- **Database**: Room
+- **Navigation**: Compose Navigation with typed routes (`kotlinx.serialization`)
 - **Async**: Kotlin Coroutines + StateFlow / SharedFlow
-- **Serialization**: kotlinx.serialization (JSON import/export)
-- **Min SDK**: 26 (Android 8.0), Target SDK: 35
+- **Serialization**: kotlinx.serialization
+- **Min SDK**: 26, Target SDK: 35
 
 ## Project Structure
 
-```
+```text
 app/src/main/java/com/davidpv/padelmatch/
 ├── data/
 │   ├── db/           # Room database, DAOs, entities
-│   ├── model/        # Domain data classes (PlayerStats, PlayerSessionEntry, …)
-│   ├── repository/   # Repository classes — single source of truth for UI
+│   ├── model/        # Domain data classes
+│   ├── repository/   # Repository classes
 │   ├── importer/     # JSON import
 │   └── exporter/     # JSON export
-├── di/               # Hilt DatabaseModule
+├── di/               # Hilt database module
 └── ui/
-    ├── history/      # MatchHistoryScreen, SessionCard, BracketGameCard, ClassificationChart, DayCell
-    ├── navigation/   # AppNavigation, HomeScreen, HomeNavigation (bottom tabs)
-    ├── newmatch/     # NewMatchScreen, NewMatchViewModel, PlayerSelectionStep
-    ├── results/      # EditResultsScreen, GamePickerSheet
-    ├── session/      # SessionDetailScreen, SessionDetailViewModel
-    ├── statistics/   # StatisticsScreen, PlayerDetailScreen, PlayerDetailViewModel, CombinedWinRatioChartScreen
-    └── theme/        # Color, Typography, playerColors()
+    ├── history/      # Match history, charts, and calendar
+    ├── navigation/   # App navigation and bottom tabs
+    ├── newmatch/     # New match flow
+    ├── results/      # Edit results screens and sheets
+    ├── session/      # Session detail screens
+    ├── statistics/   # Player statistics and detailed charts
+    └── theme/        # Color, typography, and player colors
 ```
 
-## Domain Terminology
+## Architecture
 
-- **Partido / Session**: one match day — one `SessionEntity` per calendar day
-- **Set**: a single bracket game within a session — one `GameEntity` per set
-- **Pair**: two players on one side of a set
+### Layer Overview
+
+- **UI** (`ui/`): Compose screens are driven by ViewModels exposing `StateFlow<UiState>` and `SharedFlow<Event>`.
+- **Data** (`data/`): Repositories coordinate Room entities, domain models, and JSON import/export flows.
+- **DI** (`di/`): Hilt provides the database, DAOs, and repositories.
+
+### Key Data Flow
+
+1. User creates or edits a session from the UI flow
+2. ViewModels validate inputs and call repositories
+3. Repositories persist data through Room DAOs
+4. Reactive `Flow` queries update history, statistics, and charts automatically
+
+### Error Handling
+
+Validation issues and one-shot UI events should be surfaced through ViewModel state or `SharedFlow<Event>` rather than hidden in repositories.
 
 ## Key Conventions
 
 ### Code Style
+
 - Minimal comments — only comment genuinely non-obvious logic
-- No trailing `Co-authored-by` trailers in git commits
-- Kotlin idioms preferred (`when`, `let`, `also`, `mapNotNull`, etc.)
+- No Copilot co-author trailers in commit messages
+- Prefer Kotlin idioms such as `when`, `let`, `also`, and `mapNotNull`
 
 ### Compose
-- Avoid inline lambda allocations inside `LazyColumn` items — use `remember(key) { lambda }`
-- Memoize expensive computations inside composables with `remember(key) { ... }`
-- Use `remember` for sorted lists, color lookups (`playerColors()`), date parsing, Paint objects
-- Prefer `MutableState.value` over `by` delegate when IDE warns about unused assignments
+
+- Avoid unnecessary allocations inside `LazyColumn` items
+- Memoize expensive computations with `remember(key) { ... }`
+- Prefer `MutableState.value` over `by` delegate when IDE inspections complain about unused assignments
 - Always consider the `mobile-android-design` skill before making Android UI, UX, navigation, or Material 3 changes
 
 ### Architecture
-- ViewModels expose `StateFlow<UiState>` and `SharedFlow<Event>` (for one-shot navigation/toasts)
-- Repositories are `@Singleton` and injected via Hilt
-- Room DAOs return `Flow<T>` for reactive queries; suspend functions for one-shot writes
-- Navigation events carry data (e.g. `SharedFlow<Long>` for sessionId after creation)
 
-### Naming
-- Screens: `<Feature>Screen.kt` + `<Feature>ViewModel.kt`
-- DAOs: `<Entity>Dao.kt` in `data/db/dao/`
-- Entities: `<Name>Entity` in `data/db/entity/`
-- Repositories: `<Domain>Repository.kt` in `data/repository/`
+- ViewModels expose `StateFlow<UiState>` and `SharedFlow<Event>`
+- Repositories are `@Singleton` and injected with Hilt
+- Room DAOs return `Flow<T>` for reactive queries and suspend functions for writes
 
 ### UI Patterns
+
 - Player colour badges use `playerColors(name: String): Pair<Color, Color>` from `ui/theme/`
-- Win-ratio badge gradient: red(0%) → orange(30%) → light green(50%) → dark green(100%)
-- Charts use time-proportional X axis (`LocalDate.toEpochDay()` for positioning)
-- Combined chart is rotated 90° via `RotatedLayout` (swaps width/height constraints + `graphicsLayer { rotationZ = 90f }`) for landscape display within portrait layout
-- Chart line colours use `lerp(bg, onColor, 0.45f)` for a vivid mid-tone between badge background and text colour
-- Canvas tooltips: width from `Paint.measureText()` + padding; height from `fontMetrics.ascent/descent` for pixel-perfect equal padding; text positioned at baseline using `-fm.ascent` offset
-- Win ratio percentages use `roundToInt()` (never `toInt()`) everywhere; global win ratio shown with one decimal (`"%.1f%%".format(...)`)
-- Player badges sorted alphabetically wherever displayed
-- Spanish locale for all user-facing date strings (`Locale.forLanguageTag("es")`)
+- Win-ratio badge gradient: red → orange → light green → dark green
+- Charts use time-proportional X positions via `LocalDate.toEpochDay()`
 - All user-facing text is in Spanish
 
-## Build
+### Domain Terminology
 
-```bash
-# Debug APK (auto-signed, installable)
-./gradlew assembleDebug
-# Output: app/build/outputs/apk/debug/app-debug.apk
-
-# Install via ADB
-adb install app/build/outputs/apk/debug/app-debug.apk
-```
-
-Requires JDK 21 (JetBrains). Set `JAVA_HOME` to your JetBrains JDK 21 install if building from CLI.
-
-## CI
-
-GitHub Actions (`.github/workflows/debug-apk.yml`) builds a debug APK on every push to `master` and uploads it as an artifact for 7 days.
+- **Partido / Session**: one match day
+- **Set**: one bracket game inside a session
+- **Pair**: two players on one side of a set

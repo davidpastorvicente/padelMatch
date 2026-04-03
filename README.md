@@ -2,40 +2,41 @@
 
 # PadelMatch
 
+![PadelMatch app icon](app/src/main/ic_launcher-playstore.png)
+
 An Android app for tracking padel match sessions with your regular group. Record sets, track player statistics, and visualise win-ratio trends over time.
 
 ## Features
 
 - **Match history** — browse all past sessions with an inline calendar filter
 - **Session detail** — see every set played, the bracket result, and the classification chart
-- **Player statistics** — per-player cards with aggregate stats (partidos, sets, wins, ratio) and a time-proportional win-ratio sparkline
-- **Combined win-ratio chart** — full-screen landscape chart overlaying all players' win-ratio trends; tap any point for a date + ratio tooltip
-- **Player detail** — individual breakdown with a full chart (tap points for tooltips) and clickable session history
-- **New match wizard** — pick a date, select players (with duplicate-date warning), and save
-- **Import / Export** — JSON backup and restore via the overflow menu
+- **Player statistics** — shows aggregate stats and time-proportional win-ratio trends per player
+- **Combined win-ratio chart** — opens a full-screen comparison chart with point tooltips
+- **Player detail** — displays individual charts and clickable session history
+- **Import / Export** — supports JSON backup and restore from the overflow menu
 
 ## Tech Stack
 
-| Layer         | Technology                   |
-|---------------|------------------------------|
-| Language      | Kotlin 2.0                   |
-| UI            | Jetpack Compose + Material 3 |
-| Architecture  | MVVM + Repository            |
-| DI            | Hilt                         |
-| Database      | Room                         |
-| Navigation    | Compose Navigation           |
-| Async         | Kotlin Coroutines + Flow     |
-| Serialization | kotlinx.serialization        |
+| Layer | Technology |
+| --- | --- |
+| Language | Kotlin 2.0 |
+| UI | Jetpack Compose + Material 3 |
+| Architecture | MVVM + Repository |
+| DI | Hilt |
+| Database | Room |
+| Navigation | Compose Navigation |
+| Async | Kotlin Coroutines + Flow |
+| Serialization | kotlinx.serialization |
 
 ## Requirements
 
 - Android **8.0+** (API 26)
 - Target SDK **35**
-- JDK **21** (JetBrains runtime — see setup instructions)
+- JDK **21** (JetBrains runtime)
 
 ## Project Structure
 
-```
+```text
 app/src/main/java/com/davidpv/padelmatch/
 ├── data/
 │   ├── db/          # Room database, DAOs, entities
@@ -56,8 +57,40 @@ app/src/main/java/com/davidpv/padelmatch/
 
 ## Getting Started
 
-Clone the repo and open in Android Studio. See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for architecture details and build instructions.
+Clone the repo and open it in Android Studio. See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for architecture details, build commands, and project conventions.
+
+## Build
+
+```bash
+# Debug APK
+./gradlew assembleDebug
+
+# Install with ADB
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+Debug output:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+## Usage
+
+### Recording sessions
+
+Create a new match day, choose the players, and save the session. Each session stores multiple sets and feeds the historical statistics views.
+
+### Import / Export
+
+Use the overflow menu to export your data as JSON or import a previous backup.
 
 ## CI
 
-Every push to `master` triggers a GitHub Actions workflow that builds and uploads a debug APK as a workflow artifact (retained for 7 days).
+Every push to `master` triggers `.github/workflows/debug-apk.yml`, which builds and uploads a debug APK artifact retained for 7 days.
+
+## Notes
+
+- All user-facing text is in Spanish
+- One session is stored per calendar day
+- Charts use time-proportional positioning for player trend lines
