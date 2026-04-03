@@ -1,8 +1,6 @@
 [![Release APK](https://github.com/davidpastorvicente/padelMatch/actions/workflows/release-apk.yml/badge.svg)](https://github.com/davidpastorvicente/padelMatch/actions/workflows/release-apk.yml)
 
-# PadelMatch
-
-![PadelMatch app icon](app/src/main/ic_launcher-playstore.png)
+<h1><img src="app/src/main/ic_launcher-playstore.png" alt="App icon" height="48" valign="middle"> PadelMatch</h1>
 
 An Android app for tracking padel match sessions with your regular group. Record sets, track player statistics, and visualise win-ratio trends over time.
 
