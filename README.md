@@ -55,7 +55,7 @@ app/src/main/java/com/davidpv/padelmatch/
 
 ## Getting Started
 
-Clone the repo and open it in Android Studio. See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for architecture details, build commands, and project conventions.
+Clone the repo and open it in Android Studio. See [`AGENTS.md`](AGENTS.md) for the repo-specific build, architecture, and workflow notes used by coding agents.
 
 ## Build
 
