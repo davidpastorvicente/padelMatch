@@ -35,6 +35,11 @@ An Android app for tracking padel match sessions with your regular group. Record
 ## Project Structure
 
 ```text
+docs/                           # Static marketing site published with GitHub Pages
+├── index.html
+├── styles.css
+└── script.js
+
 app/src/main/java/com/davidpv/padelmatch/
 ├── data/
 │   ├── db/          # Room database, DAOs, entities
@@ -86,6 +91,16 @@ Use the overflow menu to export your data as JSON or import a previous backup.
 ## CI
 
 Every push to `master` triggers `.github/workflows/debug-apk.yml`, which builds and uploads a debug APK artifact retained for 7 days.
+
+## Website
+
+The repository also includes a static landing page in `docs/`.
+
+- Local preview: open `docs/index.html` in a browser
+- GitHub Pages deploy: `.github/workflows/deploy-pages.yml`
+- Publish trigger: pushes to `main` or `master` that change `docs/**`
+
+To enable the site on GitHub, set Pages source to `GitHub Actions` in the repository settings.
 
 ## Notes
 

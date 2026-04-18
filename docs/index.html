@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PadelMatch | Tu grupo, tus partidos, tus estadísticas</title>
+    <meta
+      name="description"
+      content="PadelMatch organiza tus partidos de pádel, guarda cada set y convierte el historial del grupo en estadísticas claras y gráficas útiles."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="PadelMatch, inicio">
+          <span class="brand-mark">
+            <img src="../app/src/main/ic_launcher-playstore.png" alt="Icono de PadelMatch" />
+          </span>
+          <span class="brand-copy">
+            <strong>PadelMatch</strong>
+            <span>El marcador inteligente de tu grupo</span>
+          </span>
+        </a>
+
+        <nav class="site-nav" aria-label="Navegación principal">
+          <a href="#funciones">Funciones</a>
+          <a href="#experiencia">Experiencia</a>
+          <a href="#estadisticas">Estadísticas</a>
+          <a href="#seguridad">Backups</a>
+        </nav>
+
+        <a
+          class="header-cta"
+          href="https://github.com/davidpastorvicente/padelMatch/releases/latest"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Descargar APK
+        </a>
+      </header>
+
+      <main id="top">
+        <section class="hero section-grid">
+          <div class="hero-copy reveal">
+            <p class="eyebrow">Android app para grupos de pádel</p>
+            <h1>Todo lo que pasa en pista acaba convertido en historia útil.</h1>
+            <p class="hero-text">
+              PadelMatch guarda cada partido, ordena los sets, calcula clasificaciones
+              y enseña la evolución real de cada jugador con una interfaz hecha para
+              grupos que juegan siempre juntos.
+            </p>
+
+            <div class="hero-actions">
+              <a
+                class="button button-primary"
+                href="https://github.com/davidpastorvicente/padelMatch/releases/latest"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Descargar la app
+              </a>
+              <a class="button button-primary" href="#funciones">Explorar funciones</a>
+              <a class="button button-secondary" href="#estadisticas">Ver estadísticas</a>
+            </div>
+
+            <ul class="hero-points" aria-label="Puntos clave de la app">
+              <li>Historial por fechas con calendario integrado</li>
+              <li>Detalle de sets, clasificación y vista compartible</li>
+              <li>Gráficas individuales y comparativas para todo el grupo</li>
+            </ul>
+          </div>
+
+          <div class="hero-stage reveal">
+            <div class="stage-glow stage-glow-a"></div>
+            <div class="stage-glow stage-glow-b"></div>
+
+            <div class="dashboard-card dashboard-main">
+              <div class="card-topline">
+                <span class="chip chip-green">Historial activo</span>
+                <span class="muted">Grupo del jueves</span>
+              </div>
+
+              <div class="scoreboard">
+                <div class="score-row">
+                  <span>Rubén / Marta</span>
+                  <strong>3 sets</strong>
+                </div>
+                <div class="score-row">
+                  <span>Diego / Laura</span>
+                  <strong>1 set</strong>
+                </div>
+              </div>
+
+              <div class="chart-block" aria-hidden="true">
+                <div class="chart-axis"></div>
+                <div class="chart-line chart-line-a"></div>
+                <div class="chart-line chart-line-b"></div>
+                <span class="chart-dot dot-a"></span>
+                <span class="chart-dot dot-b"></span>
+                <span class="chart-dot dot-c"></span>
+                <span class="chart-dot dot-d"></span>
+              </div>
+            </div>
+
+            <div class="dashboard-card dashboard-side dashboard-calendar">
+              <div class="card-title-row">
+                <strong>Calendario</strong>
+                <span class="muted">Abril</span>
+              </div>
+              <div class="mini-calendar" aria-hidden="true">
+                <span></span><span></span><span class="filled"></span><span></span><span></span><span class="filled"></span><span></span>
+                <span></span><span class="filled"></span><span></span><span></span><span class="filled"></span><span></span><span></span>
+                <span></span><span></span><span></span><span class="active"></span><span></span><span></span><span class="filled"></span>
+              </div>
+            </div>
+
+            <div class="dashboard-card dashboard-side dashboard-ranking">
+              <div class="card-title-row">
+                <strong>Clasificación</strong>
+                <span class="muted">En directo</span>
+              </div>
+              <div class="ranking-bars">
+                <div><label>Rubén</label><span style="--fill: 82%"></span></div>
+                <div><label>Marta</label><span style="--fill: 68%"></span></div>
+                <div><label>Laura</label><span style="--fill: 51%"></span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="metrics-band reveal" aria-label="Métricas principales">
+          <article>
+            <strong data-count="1">1</strong>
+            <span>partido por día para mantener el historial limpio</span>
+          </article>
+          <article>
+            <strong data-count="4">4</strong>
+            <span>jugadores por sesión con sets reordenables y editables</span>
+          </article>
+          <article>
+            <strong data-count="100">100</strong>
+            <span>% del historial exportable en JSON para backup y restauración</span>
+          </article>
+        </section>
+
+        <section id="funciones" class="content-section">
+          <div class="section-heading reveal">
+            <p class="eyebrow">Funciones principales</p>
+            <h2>Una app pensada para la rutina real de un grupo fijo.</h2>
+            <p>
+              No intenta ser una red social ni un marcador genérico. Resuelve justo
+              lo que hace falta para registrar partidos, revisar resultados y entender
+              cómo evoluciona cada jugador con el paso del tiempo.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-3 2-3-2-4 2V5a2 2 0 0 1 2-2Z"/></svg>
+              </div>
+              <h3>Nuevo partido en segundos</h3>
+              <p>
+                Selecciona la fecha, elige los jugadores habituales o añade uno nuevo,
+                y deja preparada la sesión antes de empezar a jugar.
+              </p>
+            </article>
+
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+              </div>
+              <h3>Historial filtrable por calendario</h3>
+              <p>
+                Revisa todo lo jugado con una lista clara y un filtro de fechas integrado
+                que permite ir directo a cualquier día con actividad.
+              </p>
+            </article>
+
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18V9m6 9V5m6 13v-7"/></svg>
+              </div>
+              <h3>Clasificación automática</h3>
+              <p>
+                Cada set alimenta una clasificación visual por ratio de victorias para
+                entender de un vistazo cómo quedó la jornada.
+              </p>
+            </article>
+
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M7 15l3-3 3 2 4-6"/></svg>
+              </div>
+              <h3>Estadísticas por jugador</h3>
+              <p>
+                La app muestra partidos, sets, victorias y ratio total, con mini gráficas
+                y vistas de detalle para seguir la evolución individual.
+              </p>
+            </article>
+
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c2.5-4 5-6 8-6s5.5 2 8 6M4 8c2.5 4 5 6 8 6s5.5-2 8-6"/></svg>
+              </div>
+              <h3>Comparativa global del grupo</h3>
+              <p>
+                Un gráfico general cruza la trayectoria de todos los jugadores para ver
+                tendencias, rachas y diferencias reales entre sesiones.
+              </p>
+            </article>
+
+            <article class="feature-card reveal">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14"/></svg>
+              </div>
+              <h3>Backup y restauración en JSON</h3>
+              <p>
+                Exporta todo el contenido del grupo a un archivo compartible y vuelve a
+                importarlo cuando cambies de móvil o quieras recuperar tus datos.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="experiencia" class="content-section section-split">
+          <div class="section-heading reveal">
+            <p class="eyebrow">Experiencia de uso</p>
+            <h2>De la pista al análisis sin fricción.</h2>
+            <p>
+              Toda la navegación está organizada alrededor de dos ejes: historial y
+              estadísticas. Lo importante aparece rápido y lo secundario no estorba.
+            </p>
+          </div>
+
+          <div class="journey-layout">
+            <div class="journey-steps reveal">
+              <article class="journey-step active" data-spotlight="crear">
+                <span>01</span>
+                <div>
+                  <h3>Crear la jornada</h3>
+                  <p>Fecha, jugadores, validación de conflictos y alta rápida de nuevos nombres.</p>
+                </div>
+              </article>
+              <article class="journey-step" data-spotlight="editar">
+                <span>02</span>
+                <div>
+                  <h3>Editar y ordenar sets</h3>
+                  <p>Resultados, reordenación por arrastre y cambios guardados cuando todo cuadra.</p>
+                </div>
+              </article>
+              <article class="journey-step" data-spotlight="detalle">
+                <span>03</span>
+                <div>
+                  <h3>Consultar el detalle</h3>
+                  <p>Clasificación del día, bracket de sets, compartir resumen y eliminar si hace falta.</p>
+                </div>
+              </article>
+              <article class="journey-step" data-spotlight="analizar">
+                <span>04</span>
+                <div>
+                  <h3>Analizar la evolución</h3>
+                  <p>Vista global del grupo y pantalla individual con histórico por fechas y ratios.</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="spotlight-card reveal" id="spotlight-card">
+              <p class="spotlight-label">Crear la jornada</p>
+              <h3>Preparar un partido no rompe el ritmo.</h3>
+              <p>
+                La pantalla de nuevo partido permite fijar fecha, detectar si ese día ya
+                existe una sesión y confirmar la selección de jugadores sin pasos de sobra.
+              </p>
+              <div class="spotlight-preview spotlight-players" aria-hidden="true">
+                <span>Rubén</span>
+                <span>Marta</span>
+                <span>Laura</span>
+                <span>Diego</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="estadisticas" class="content-section stats-showcase">
+          <div class="section-heading reveal">
+            <p class="eyebrow">Estadísticas claras</p>
+            <h2>Datos útiles, no ruido.</h2>
+            <p>
+              PadelMatch convierte el historial en señales fáciles de leer: ratios,
+              tendencia temporal, comparativas y acceso directo a cada sesión desde la
+              ficha de un jugador.
+            </p>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stats-panel large reveal">
+              <div class="panel-header">
+                <div>
+                  <span class="eyebrow small">Vista global</span>
+                  <h3>Compara a todo el grupo en una sola gráfica.</h3>
+                </div>
+                <span class="chip chip-outline">Ratios temporales</span>
+              </div>
+              <div class="multi-chart" aria-hidden="true">
+                <div class="chart-grid-lines"></div>
+                <div class="stroke stroke-one"></div>
+                <div class="stroke stroke-two"></div>
+                <div class="stroke stroke-three"></div>
+              </div>
+            </article>
+
+            <article class="stats-panel reveal">
+              <div class="panel-header compact">
+                <div>
+                  <span class="eyebrow small">Ficha individual</span>
+                  <h3>Detalle por jugador</h3>
+                </div>
+              </div>
+              <ul class="stat-list">
+                <li><span>Partidos</span><strong>18</strong></li>
+                <li><span>Sets</span><strong>61</strong></li>
+                <li><span>Victorias</span><strong>34</strong></li>
+                <li><span>Ratio</span><strong>55.7%</strong></li>
+              </ul>
+            </article>
+
+            <article class="stats-panel reveal">
+              <div class="panel-header compact">
+                <div>
+                  <span class="eyebrow small">Sesión concreta</span>
+                  <h3>Clasificación inmediata</h3>
+                </div>
+              </div>
+              <div class="ranking-bars alt">
+                <div><label>Marta</label><span style="--fill: 88%"></span></div>
+                <div><label>Rubén</label><span style="--fill: 74%"></span></div>
+                <div><label>Laura</label><span style="--fill: 57%"></span></div>
+                <div><label>Diego</label><span style="--fill: 41%"></span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="seguridad" class="content-section backup-section">
+          <div class="backup-copy reveal">
+            <p class="eyebrow">Tus datos siguen contigo</p>
+            <h2>Exporta, comparte y recupera el historial cuando quieras.</h2>
+            <p>
+              El backup en JSON guarda jugadores, sesiones y sets en un formato sencillo.
+              Es ideal para migrar de dispositivo, proteger el historial del grupo y evitar
+              perder meses de partidos acumulados.
+            </p>
+            <ul class="check-list">
+              <li>Exportación desde el menú de la app</li>
+              <li>Archivo compartible con nombre `padelMatch.json`</li>
+              <li>Importación con detección de sesiones ya existentes</li>
+            </ul>
+          </div>
+
+          <div class="backup-card reveal">
+            <div class="file-card">
+              <div class="file-header">
+                <span class="file-dot"></span>
+                <strong>padelMatch.json</strong>
+              </div>
+              <pre>{
+  "players": [...],
+  "sessions": [
+    {
+      "date": "2026-04-18",
+      "games": [...]
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="final-cta reveal">
+          <p class="eyebrow">PadelMatch</p>
+          <h2>Una forma mucho más clara de recordar quién ganó, cuándo y cómo.</h2>
+          <p>
+            Si tu grupo juega cada semana, esta app convierte los partidos en un historial
+            que de verdad se consulta y se entiende.
+          </p>
+          <div class="hero-actions centered">
+            <a
+              class="button button-primary"
+              href="https://github.com/davidpastorvicente/padelMatch/releases/latest"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Descargar APK
+            </a>
+            <a class="button button-primary" href="#top">Volver arriba</a>
+            <a class="button button-secondary" href="https://github.com/davidpastorvicente/padelMatch">Ver repositorio</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
