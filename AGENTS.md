@@ -11,6 +11,7 @@
 - Other useful commands: `./gradlew clean assembleDebug`, `adb install app/build/outputs/apk/debug/app-debug.apk`, `./gradlew :app:assembleRelease`
 - Release signing uses `RELEASE_KEYSTORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD`. If unset, local release builds fall back to debug signing.
 - There are currently no sources under `app/src/test/` or `app/src/androidTest/`. Do not imply automated test coverage unless you added it.
+- `padel_match_analyzer.py` is the repository helper used to validate the session distributions used by the app. When changing `TemplateRepository`, prefer checking candidate schedules with `python3 padel_match_analyzer.py path/to/schedule.txt`.
 
 ## Architecture
 - App startup flow is `PadelMatchApp` -> `MainActivity` -> `PadelMatchTheme` -> `AppNavigation`.
@@ -49,6 +50,7 @@
 - Do not add Copilot co-author trailers to commit messages.
 - Prefer Kotlin idioms such as `when`, `let`, `also`, and `mapNotNull`.
 - Repositories should be `@Singleton` and injected with Hilt.
+- The analyzer script currently validates these schedule rules: same matches played by all players, no player rests more than 1 match in a row, max consecutive matches played: 4 for 5 players, 3 for 6 or more players, every player partners with every other player at least once, every player faces every other player at least once, no couple appears in two consecutive matches, and every possible disjoint couple-vs-couple matchup appears at least once.
 
 ## Compose And UI
 - Preserve the existing Material 3 visual language unless the task explicitly asks for redesign.

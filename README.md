@@ -78,6 +78,26 @@ Debug output:
 app/build/outputs/apk/debug/app-debug.apk
 ```
 
+## Match Distribution Validation
+
+This repository includes `padel_match_analyzer.py`, a helper script used to validate the match distributions shipped in the app.
+
+Run it with a text file containing one match per line in the format `AB - CD`:
+
+```bash
+python3 padel_match_analyzer.py path/to/schedule.txt
+```
+
+The script checks these rules:
+
+- Same matches played by all players
+- No player rests more than 1 match in a row
+- Max consecutive matches played: 4 for 5 players, 3 for 6 or more players
+- Every player partners with every other player at least once
+- Every player faces every other player at least once
+- No couple appears in two consecutive matches
+- Every possible disjoint couple-vs-couple matchup appears at least once
+
 ## Usage
 
 ### Recording sessions
