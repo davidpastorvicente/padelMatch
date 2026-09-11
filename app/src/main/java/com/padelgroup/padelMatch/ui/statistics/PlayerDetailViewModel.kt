@@ -3,19 +3,20 @@ package com.davidpv.padelmatch.ui.statistics
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.davidpv.padelmatch.data.db.entity.PlayerEntity
 import com.davidpv.padelmatch.data.model.PlayerSessionEntry
+import com.davidpv.padelmatch.data.model.label
 import com.davidpv.padelmatch.data.repository.PlayerRepository
+import com.davidpv.padelmatch.data.repository.SeasonFilterStore
 import com.davidpv.padelmatch.data.repository.StatisticsRepository
-import com.davidpv.padelmatch.di.MainDispatcher
 import com.davidpv.padelmatch.ui.navigation.PlayerDetailRoute
-import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class PlayerDetailData(
@@ -25,7 +26,8 @@ data class PlayerDetailData(
     val losses: Int,
     val winRatio: Float,
     val sessionsAttended: Int,
-    val sessionHistory: List<PlayerSessionEntry>
+    val sessionHistory: List<PlayerSessionEntry>,
+    val seasonLabel: String
 )
 
 sealed class PlayerDetailUiState {
@@ -38,24 +40,17 @@ sealed class PlayerDetailUiState {
 class PlayerDetailViewModel @Inject constructor(
     private val playerRepository: PlayerRepository,
     private val statisticsRepository: StatisticsRepository,
-    savedStateHandle: SavedStateHandle,
-    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
+    seasonFilterStore: SeasonFilterStore,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     private val playerId: Long = savedStateHandle.toRoute<PlayerDetailRoute>().playerId
 
-    private val _uiState = MutableStateFlow<PlayerDetailUiState>(PlayerDetailUiState.Loading)
-    val uiState: StateFlow<PlayerDetailUiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch(mainDispatcher) {
+    val uiState: StateFlow<PlayerDetailUiState> = seasonFilterStore.filter.filterNotNull()
+        .map { filter ->
             val player = playerRepository.getPlayerById(playerId)
-            if (player == null) {
-                _uiState.value = PlayerDetailUiState.Error("Jugador no encontrado")
-                return@launch
-            }
-            val summary = statisticsRepository.getPlayerDetailSummary(playerId)
-            _uiState.value = PlayerDetailUiState.Success(
+                ?: return@map PlayerDetailUiState.Error("Jugador no encontrado")
+            val summary = statisticsRepository.getPlayerDetailSummary(playerId, filter)
+            PlayerDetailUiState.Success(
                 PlayerDetailData(
                     player = player,
                     totalGames = summary.totalGames,
@@ -63,10 +58,10 @@ class PlayerDetailViewModel @Inject constructor(
                     losses = summary.losses,
                     winRatio = summary.winRatio,
                     sessionsAttended = summary.sessionsAttended,
-                    sessionHistory = summary.sessionHistory
+                    sessionHistory = summary.sessionHistory,
+                    seasonLabel = filter.label
                 )
             )
         }
-    }
-
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PlayerDetailUiState.Loading)
 }

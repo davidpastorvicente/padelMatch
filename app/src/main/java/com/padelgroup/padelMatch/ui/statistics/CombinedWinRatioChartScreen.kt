@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.davidpv.padelmatch.data.model.PlayerStats
+import com.davidpv.padelmatch.data.model.SeasonFilter
+import com.davidpv.padelmatch.data.model.label
 import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -69,11 +71,21 @@ fun CombinedWinRatioChartScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val seasonLabel = when (val state = uiState) {
+        is StatisticsUiState.Success -> state.selectedSeason.label
+        is StatisticsUiState.Empty -> state.selectedSeason.label
+        StatisticsUiState.Loading -> null
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gráfico general", fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        seasonLabel?.let { "Gráfico general · $it" } ?: "Gráfico general",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -89,13 +101,13 @@ fun CombinedWinRatioChartScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             StatisticsUiState.Loading -> Unit
-            StatisticsUiState.Empty -> {
+            is StatisticsUiState.Empty -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Sin datos todavía",
+                        if (state.selectedSeason is SeasonFilter.All) "Sin datos todavía" else "Sin datos en esta temporada",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

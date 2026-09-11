@@ -32,11 +32,13 @@ interface GameDao {
     suspend fun insertGame(game: GameEntity): Long
 
     @Query("""
-        SELECT COUNT(*) FROM games 
-        WHERE (winningPair = 1 AND (pair1Player1Id = :playerId OR pair1Player2Id = :playerId))
-           OR (winningPair = 2 AND (pair2Player1Id = :playerId OR pair2Player2Id = :playerId))
+        SELECT COUNT(*) FROM games g
+        JOIN sessions s ON s.id = g.sessionId
+        WHERE s.date BETWEEN :from AND :to
+          AND ((g.winningPair = 1 AND (g.pair1Player1Id = :playerId OR g.pair1Player2Id = :playerId))
+            OR (g.winningPair = 2 AND (g.pair2Player1Id = :playerId OR g.pair2Player2Id = :playerId)))
     """)
-    suspend fun countWinsForPlayer(playerId: Long): Int
+    suspend fun countWinsForPlayer(playerId: Long, from: String, to: String): Int
 
     @Query("SELECT COUNT(*) FROM games")
     fun getGamesCountFlow(): Flow<Int>

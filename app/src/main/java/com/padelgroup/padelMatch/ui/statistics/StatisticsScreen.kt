@@ -14,13 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.davidpv.padelmatch.data.model.PlayerSessionEntry
 import com.davidpv.padelmatch.data.model.PlayerStats
+import com.davidpv.padelmatch.data.model.Season
+import com.davidpv.padelmatch.data.model.SeasonFilter
+import com.davidpv.padelmatch.data.model.label
 import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,19 +49,23 @@ import java.time.format.DateTimeFormatter
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        when (val state = uiState) {
-            StatisticsUiState.Loading -> Unit
-            StatisticsUiState.Empty -> {
+    when (val state = uiState) {
+        StatisticsUiState.Loading -> Unit
+        is StatisticsUiState.Empty -> {
+            Column(modifier = Modifier.fillMaxSize()) {
+                SeasonSelector(state.seasons, state.selectedSeason, viewModel::selectSeason)
+                Box(modifier = Modifier.fillMaxSize()) {
                 Text(
-                    "Sin datos todavía",
+                    if (state.selectedSeason is SeasonFilter.All) "Sin datos todavía" else "Sin datos en esta temporada",
                     modifier = Modifier.align(Alignment.Center),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                }
             }
-            is StatisticsUiState.Success -> {
-                val playerStats = state.playerStats
+        }
+        is StatisticsUiState.Success -> {
+            val playerStats = state.playerStats
             val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
             val globalEpochRange = remember(playerStats) {
                 val allDates = playerStats.flatMap { it.history }.mapNotNull {
@@ -61,17 +75,52 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
                 else Pair(allDates.min(), allDates.max())
             }
 
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(playerStats, key = { it.player.id }) { stats ->
-                    val onClick = remember(stats.player.id) { { onPlayerClick(stats.player.id) } }
-                    PlayerStatCard(stats = stats, onClick = onClick, globalEpochRange = globalEpochRange)
+            Column(modifier = Modifier.fillMaxSize()) {
+                SeasonSelector(state.seasons, state.selectedSeason, viewModel::selectSeason)
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(playerStats, key = { it.player.id }) { stats ->
+                        val onClick = remember(stats.player.id) { { onPlayerClick(stats.player.id) } }
+                        PlayerStatCard(stats = stats, onClick = onClick, globalEpochRange = globalEpochRange)
+                    }
+                    item { Spacer(Modifier.height(80.dp)) }
                 }
-                item { Spacer(Modifier.height(80.dp)) }
             }
         }
+    }
+}
+
+@Composable
+private fun SeasonSelector(
+    seasons: List<Season>,
+    selectedSeason: SeasonFilter,
+    onSelect: (SeasonFilter) -> Unit
+) {
+    var expanded by remember { androidx.compose.runtime.mutableStateOf(false) }
+    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(selectedSeason.label)
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Seleccionar temporada")
+            }
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(SeasonFilter.All.label) },
+                onClick = { onSelect(SeasonFilter.All); expanded = false }
+            )
+            seasons.forEach { season ->
+                DropdownMenuItem(
+                    text = { Text(season.label) },
+                    onClick = { onSelect(SeasonFilter.Of(season)); expanded = false }
+                )
+            }
         }
     }
 }

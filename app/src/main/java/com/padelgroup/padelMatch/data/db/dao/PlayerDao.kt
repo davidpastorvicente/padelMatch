@@ -30,6 +30,16 @@ interface PlayerDao {
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("SELECT COUNT(*) FROM games WHERE winningPair IS NOT NULL AND (pair1Player1Id = :id OR pair1Player2Id = :id OR pair2Player1Id = :id OR pair2Player2Id = :id)")
-    suspend fun countGamesForPlayer(id: Long): Int
+    @Query("""
+        SELECT COUNT(*) FROM games g
+        JOIN sessions s ON s.id = g.sessionId
+        WHERE g.winningPair IS NOT NULL
+          AND s.date BETWEEN :from AND :to
+          AND (g.pair1Player1Id = :playerId OR g.pair1Player2Id = :playerId
+            OR g.pair2Player1Id = :playerId OR g.pair2Player2Id = :playerId)
+    """)
+    suspend fun countGamesForPlayer(playerId: Long, from: String, to: String): Int
+
+    @Query("SELECT COUNT(*) FROM games WHERE winningPair IS NOT NULL AND (pair1Player1Id = :playerId OR pair1Player2Id = :playerId OR pair2Player1Id = :playerId OR pair2Player2Id = :playerId)")
+    suspend fun countGamesForPlayer(playerId: Long): Int
 }

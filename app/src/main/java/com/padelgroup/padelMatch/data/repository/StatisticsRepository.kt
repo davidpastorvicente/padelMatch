@@ -5,6 +5,11 @@ import com.davidpv.padelmatch.data.db.dao.PlayerDao
 import com.davidpv.padelmatch.data.db.dao.SessionDao
 import com.davidpv.padelmatch.data.model.PlayerSessionEntry
 import com.davidpv.padelmatch.data.model.PlayerStats
+import com.davidpv.padelmatch.data.model.Season
+import com.davidpv.padelmatch.data.model.SeasonFilter
+import com.davidpv.padelmatch.data.model.endDate
+import com.davidpv.padelmatch.data.model.seasonOf
+import com.davidpv.padelmatch.data.model.startDate
 import com.davidpv.padelmatch.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.combine
@@ -31,7 +36,15 @@ class StatisticsRepository @Inject constructor(
     private val gameDao: GameDao,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
-    fun getPlayerStatsFlow(): Flow<List<PlayerStats>> = combine(
+    val availableSeasons: Flow<List<Season>> = sessionDao.getAllSessionDates()
+        .map { dates ->
+            dates.mapNotNull(::seasonOf)
+                .distinct()
+                .sortedByDescending { it.startYear }
+        }
+        .flowOn(ioDispatcher)
+
+    fun getPlayerStatsFlow(filter: SeasonFilter): Flow<List<PlayerStats>> = combine(
         playerDao.getAllPlayers(),
         sessionDao.getAllSessions(),
         gameDao.getGamesCountFlow()
@@ -39,12 +52,12 @@ class StatisticsRepository @Inject constructor(
         players
     }.map { players ->
         players.mapNotNull { player ->
-            val totalGames = playerDao.countGamesForPlayer(player.id)
+            val totalGames = playerDao.countGamesForPlayer(player.id, filter.startDate, filter.endDate)
             if (totalGames == 0) return@mapNotNull null
-            val wins = gameDao.countWinsForPlayer(player.id)
+            val wins = gameDao.countWinsForPlayer(player.id, filter.startDate, filter.endDate)
             val losses = totalGames - wins
             val winRatio = wins.toFloat() / totalGames
-            val sessionHistory = sessionDao.getPlayerSessionHistory(player.id)
+            val sessionHistory = sessionDao.getPlayerSessionHistory(player.id, filter.startDate, filter.endDate)
             val sessionsAttended = sessionHistory.size
             PlayerStats(
                 player = player,
@@ -59,11 +72,11 @@ class StatisticsRepository @Inject constructor(
     }.flowOn(ioDispatcher)
 
 
-    suspend fun getPlayerDetailSummary(playerId: Long): PlayerDetailSummary = withContext(ioDispatcher) {
-        val totalGames = playerDao.countGamesForPlayer(playerId)
-        val wins = gameDao.countWinsForPlayer(playerId)
+    suspend fun getPlayerDetailSummary(playerId: Long, filter: SeasonFilter): PlayerDetailSummary = withContext(ioDispatcher) {
+        val totalGames = playerDao.countGamesForPlayer(playerId, filter.startDate, filter.endDate)
+        val wins = gameDao.countWinsForPlayer(playerId, filter.startDate, filter.endDate)
         val losses = totalGames - wins
-        val sessionHistory = sessionDao.getPlayerSessionHistory(playerId)
+        val sessionHistory = sessionDao.getPlayerSessionHistory(playerId, filter.startDate, filter.endDate)
         PlayerDetailSummary(
             totalGames = totalGames,
             wins = wins,
