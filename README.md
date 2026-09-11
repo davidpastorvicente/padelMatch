@@ -110,7 +110,7 @@ Use the overflow menu to export your data as JSON or import a previous backup.
 
 ## CI
 
-Every push to `master` triggers `.github/workflows/debug-apk.yml`, which builds and uploads a debug APK artifact retained for 7 days.
+Pushing a version tag (`v*`) triggers `.github/workflows/release-apk.yml`, which builds and publishes a release APK.
 
 ## Website
 
@@ -118,7 +118,7 @@ The repository also includes a static landing page in `docs/`.
 
 - Local preview: open `docs/index.html` in a browser
 - GitHub Pages deploy: `.github/workflows/deploy-pages.yml`
-- Publish trigger: pushes to `main` or `master` that change `docs/**`
+- Publish trigger: pushes to `main` that change `docs/**`
 
 To enable the site on GitHub, set Pages source to `GitHub Actions` in the repository settings.
 
