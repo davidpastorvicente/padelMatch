@@ -73,6 +73,10 @@ android {
         compose = true
     }
     packaging {
+        jniLibs {
+            // AndroidX Graphics Path ships this library without strippable symbols.
+            keepDebugSymbols += "**/libandroidx.graphics.path.so"
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/DEPENDENCIES"
