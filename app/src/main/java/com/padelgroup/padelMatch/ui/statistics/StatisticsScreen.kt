@@ -42,8 +42,6 @@ import com.davidpv.padelmatch.data.model.SeasonFilter
 import com.davidpv.padelmatch.data.model.label
 import com.davidpv.padelmatch.ui.theme.PlayerBadge
 import com.davidpv.padelmatch.ui.theme.playerColors
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Unit = {}) {
@@ -66,14 +64,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel, onPlayerClick: (Long) -> Un
         }
         is StatisticsUiState.Success -> {
             val playerStats = state.playerStats
-            val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
-            val globalEpochRange = remember(playerStats) {
-                val allDates = playerStats.flatMap { it.history }.mapNotNull {
-                    try { LocalDate.parse(it.date, isoFmt).toEpochDay() } catch (_: Exception) { null }
-                }
-                if (allDates.isEmpty()) null
-                else Pair(allDates.min(), allDates.max())
-            }
+            val globalEpochRange = remember(playerStats) { winRatioEpochRange(playerStats.flatMap { it.history }) }
 
             Column(modifier = Modifier.fillMaxSize()) {
                 SeasonSelector(state.seasons, state.selectedSeason, viewModel::selectSeason)
@@ -187,16 +178,8 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
 fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modifier: Modifier = Modifier, globalEpochRange: Pair<Long, Long>? = null) {
     if (history.isEmpty()) return
 
-
     val xFractions = remember(history, globalEpochRange) {
-        val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
-        val dates = history.map {
-            try { LocalDate.parse(it.date, isoFmt) } catch (_: Exception) { LocalDate.now() }
-        }
-        val minEpoch = globalEpochRange?.first ?: dates.first().toEpochDay()
-        val maxEpoch = globalEpochRange?.second ?: dates.last().toEpochDay()
-        val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
-        dates.map { (it.toEpochDay() - minEpoch) / totalDays }
+        winRatioXFractions(history, globalEpochRange ?: winRatioEpochRange(history))
     }
 
     Canvas(
@@ -204,24 +187,9 @@ fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modif
             .fillMaxWidth()
             .height(64.dp)
     ) {
-        val w = size.width
-        val h = size.height
-        val n = history.size
-
-        fun xPos(i: Int) = xFractions[i] * w
-        fun yPos(i: Int) = h - history[i].winRatio * h
-
-        for (i in 0 until n - 1) {
-            drawLine(
-                color = lineColor,
-                start = Offset(xPos(i), yPos(i)),
-                end = Offset(xPos(i + 1), yPos(i + 1)),
-                strokeWidth = 7f
-            )
+        val points = history.mapIndexed { i, entry ->
+            Offset(xFractions[i] * size.width, size.height - entry.winRatio * size.height)
         }
-        for (i in 0 until n) {
-            drawCircle(color = lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
-            drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
-        }
+        drawWinRatioSeries(points, lineColor)
     }
 }

@@ -1,7 +1,5 @@
 package com.davidpv.padelmatch.ui.statistics
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,21 +27,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -53,16 +42,6 @@ import com.davidpv.padelmatch.data.model.SeasonFilter
 import com.davidpv.padelmatch.data.model.label
 import com.davidpv.padelmatch.ui.theme.isAppInDarkTheme
 import com.davidpv.padelmatch.ui.theme.playerColors
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-import kotlin.math.roundToInt
-
-private data class PlayerLine(
-    val stats: PlayerStats,
-    val lineColor: Color,
-    val xFractions: List<Float>
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,187 +124,21 @@ private fun CombinedWinRatioChart(
     playerStats: List<PlayerStats>,
     modifier: Modifier = Modifier
 ) {
-    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
-    val dateFmt = remember { DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("es")) }
-
-    val globalEpochRange: Pair<Long, Long>? = remember(playerStats) {
-        val allEpochs = playerStats.flatMap { it.history }.mapNotNull {
-            try { LocalDate.parse(it.date, isoFmt).toEpochDay() } catch (_: Exception) { null }
-        }
-        if (allEpochs.isEmpty()) null else allEpochs.min() to allEpochs.max()
-    }
-
-    if (globalEpochRange == null) return
-
     val darkTheme = isAppInDarkTheme()
-    val playerLines: List<PlayerLine> = remember(playerStats, globalEpochRange, darkTheme) {
-        val (minEpoch, maxEpoch) = globalEpochRange
-        val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
+    val series = remember(playerStats, darkTheme) {
+        val globalEpochRange = winRatioEpochRange(playerStats.flatMap { it.history })
         playerStats.filter { it.history.isNotEmpty() }.map { stats ->
-            val lineColor = playerColors(stats.player.name, darkTheme).accent
-            val fractions = stats.history.map { entry ->
-                try {
-                    val epoch = LocalDate.parse(entry.date, isoFmt).toEpochDay()
-                    (epoch - minEpoch) / totalDays
-                } catch (_: Exception) { 0.5f }
-            }
-            PlayerLine(stats, lineColor, fractions)
-        }
-    }
-
-    val gridColorNormal = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.15f) }
-    val gridColorMid = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.3f) }
-    val axisColor = remember(onSurfaceVariant) { onSurfaceVariant.copy(alpha = 0.7f).toArgb() }
-    val axisPaint = remember(axisColor) {
-        android.graphics.Paint().apply {
-            textSize = 30f
-            color = axisColor
-            textAlign = android.graphics.Paint.Align.RIGHT
-        }
-    }
-
-    val paddingLeft = 88f
-    val paddingRight = 16f
-    val paddingTop = 8f
-
-    var canvasSize by remember { mutableStateOf(Size.Zero) }
-    // selected: lineIdx to pointIdx
-    var selected by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-
-    Canvas(
-        modifier = modifier
-            .onSizeChanged { canvasSize = Size(it.width.toFloat(), it.height.toFloat()) }
-            .pointerInput(playerLines, canvasSize) {
-                detectTapGestures { offset ->
-                    val w = canvasSize.width
-                    val h = canvasSize.height
-                    if (w == 0f || h == 0f) return@detectTapGestures
-                    val chartW = w - paddingLeft - paddingRight
-                    val chartH = h - paddingTop
-                    var bestDist = Float.MAX_VALUE
-                    var bestPair: Pair<Int, Int>? = null
-                    playerLines.forEachIndexed { li, line ->
-                        line.stats.history.forEachIndexed { pi, entry ->
-                            val px = paddingLeft + line.xFractions[pi] * chartW
-                            val py = paddingTop + chartH - entry.winRatio * chartH
-                            val dist = (px - offset.x).let { it * it } + (py - offset.y).let { it * it }
-                            if (dist < bestDist) { bestDist = dist; bestPair = li to pi }
-                        }
-                    }
-                    selected = if (bestDist < 3600f) bestPair else null
-                }
-            }
-    ) {
-        val w = size.width
-        val h = size.height
-        val chartW = w - paddingLeft - paddingRight
-        val chartH = h - paddingTop
-
-        listOf(0, 25, 50, 75, 100).forEach { pct ->
-            val ratio = pct / 100f
-            val y = paddingTop + chartH - ratio * chartH
-            drawLine(
-                color = if (pct == 50) gridColorMid else gridColorNormal,
-                start = Offset(paddingLeft, y),
-                end = Offset(w - paddingRight, y),
-                strokeWidth = if (pct == 50) 1.5f else 1f,
-                pathEffect = if (pct == 50) PathEffect.dashPathEffect(floatArrayOf(8f, 8f)) else null
-            )
-            drawContext.canvas.nativeCanvas.drawText(
-                "$pct%",
-                paddingLeft - 28f,
-                y + axisPaint.textSize / 3f,
-                axisPaint
+            WinRatioSeries(
+                label = stats.player.name,
+                color = playerColors(stats.player.name, darkTheme).accent,
+                entries = stats.history,
+                xFractions = winRatioXFractions(stats.history, globalEpochRange)
             )
         }
-
-        playerLines.forEach { line ->
-            val n = line.stats.history.size
-            if (n == 0) return@forEach
-            fun xPos(i: Int): Float = paddingLeft + line.xFractions[i] * chartW
-            fun yPos(i: Int): Float = paddingTop + chartH - line.stats.history[i].winRatio * chartH
-            for (i in 0 until n - 1) {
-                drawLine(
-                    color = line.lineColor,
-                    start = Offset(xPos(i), yPos(i)),
-                    end = Offset(xPos(i + 1), yPos(i + 1)),
-                    strokeWidth = 7f
-                )
-            }
-            for (i in 0 until n) {
-                drawCircle(color = line.lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
-                drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
-            }
-        }
-
-        selected?.let { (li, pi) ->
-            val line = playerLines.getOrNull(li) ?: return@let
-            val entry = line.stats.history.getOrNull(pi) ?: return@let
-            val tx = paddingLeft + line.xFractions[pi] * chartW
-            val ty = paddingTop + chartH - entry.winRatio * chartH
-            drawCircle(color = line.lineColor.copy(alpha = 0.25f), radius = 20f, center = Offset(tx, ty))
-            drawCircle(color = line.lineColor, radius = 9f, center = Offset(tx, ty))
-            drawCircle(color = Color.White, radius = 4f, center = Offset(tx, ty))
-
-            val dateStr = try {
-                LocalDate.parse(entry.date, isoFmt).format(dateFmt)
-            } catch (_: Exception) { entry.date }
-
-            drawContext.canvas.nativeCanvas.apply {
-                val hPad = 24f
-                val lineSpacing = 8f
-                val margin = 14f
-                val namePaint = android.graphics.Paint().apply {
-                    color = line.lineColor.toArgb()
-                    textSize = 38f
-                    isFakeBoldText = true
-                    textAlign = android.graphics.Paint.Align.CENTER
-                    isAntiAlias = true
-                }
-                val datePaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.argb(200, 255, 255, 255)
-                    textSize = 26f
-                    textAlign = android.graphics.Paint.Align.CENTER
-                    isAntiAlias = true
-                }
-                val ratioPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.WHITE
-                    textSize = 40f
-                    isFakeBoldText = true
-                    textAlign = android.graphics.Paint.Align.CENTER
-                    isAntiAlias = true
-                }
-                val fmN = namePaint.fontMetrics
-                val fmD = datePaint.fontMetrics
-                val fmR = ratioPaint.fontMetrics
-                val ratioStr = "${(entry.winRatio * 100).roundToInt()}%"
-                val tooltipW = maxOf(
-                    namePaint.measureText(line.stats.player.name),
-                    datePaint.measureText(dateStr),
-                    ratioPaint.measureText(ratioStr)
-                ) + hPad * 2
-                val tooltipH = hPad + (-fmN.ascent) + fmN.descent + lineSpacing + (-fmD.ascent) + fmD.descent + lineSpacing + (-fmR.ascent) + fmR.descent + hPad
-                val tooltipX = (tx - tooltipW / 2).coerceIn(paddingLeft, w - paddingRight - tooltipW)
-                val tooltipY = if (ty > h / 2) ty - tooltipH - margin else ty + margin
-                val bgPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.argb(230, 30, 30, 30)
-                    isAntiAlias = true
-                }
-                drawRoundRect(
-                    android.graphics.RectF(tooltipX, tooltipY, tooltipX + tooltipW, tooltipY + tooltipH),
-                    14f, 14f, bgPaint
-                )
-                val centerX = tooltipX + tooltipW / 2
-                val line1Y = tooltipY + hPad + (-fmN.ascent)
-                val line2Y = line1Y + fmN.descent + lineSpacing + (-fmD.ascent)
-                val line3Y = line2Y + fmD.descent + lineSpacing + (-fmR.ascent)
-                drawText(line.stats.player.name, centerX, line1Y, namePaint)
-                drawText(dateStr, centerX, line2Y, datePaint)
-                drawText(ratioStr, centerX, line3Y, ratioPaint)
-            }
-        }
     }
+    if (series.isEmpty()) return
+
+    WinRatioChart(series = series, modifier = modifier)
 }
 
 @Composable
