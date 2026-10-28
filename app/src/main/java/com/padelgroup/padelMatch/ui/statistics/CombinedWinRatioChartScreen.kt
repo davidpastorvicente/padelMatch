@@ -39,7 +39,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -52,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.davidpv.padelmatch.data.model.PlayerStats
 import com.davidpv.padelmatch.data.model.SeasonFilter
 import com.davidpv.padelmatch.data.model.label
+import com.davidpv.padelmatch.ui.theme.isAppInDarkTheme
 import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -158,12 +158,12 @@ private fun CombinedWinRatioChart(
 
     if (globalEpochRange == null) return
 
-    val playerLines: List<PlayerLine> = remember(playerStats, globalEpochRange) {
+    val darkTheme = isAppInDarkTheme()
+    val playerLines: List<PlayerLine> = remember(playerStats, globalEpochRange, darkTheme) {
         val (minEpoch, maxEpoch) = globalEpochRange
         val totalDays = (maxEpoch - minEpoch).coerceAtLeast(1).toFloat()
         playerStats.filter { it.history.isNotEmpty() }.map { stats ->
-            val (bg, onColor) = playerColors(stats.player.name)
-            val lineColor = lerp(bg, onColor, 0.45f)
+            val lineColor = playerColors(stats.player.name, darkTheme).accent
             val fractions = stats.history.map { entry ->
                 try {
                     val epoch = LocalDate.parse(entry.date, isoFmt).toEpochDay()
@@ -355,8 +355,7 @@ private fun PlayerLegend(playerStats: List<PlayerStats>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         sortedPlayers.forEach { stats ->
-            val (bg, onColor) = remember(stats.player.name) { playerColors(stats.player.name) }
-            val dotColor = remember(bg, onColor) { lerp(bg, onColor, 0.45f) }
+            val dotColor = playerColors(stats.player.name).accent
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = CircleShape,

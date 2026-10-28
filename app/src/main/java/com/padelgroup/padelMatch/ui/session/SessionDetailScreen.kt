@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -39,7 +38,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.davidpv.padelmatch.data.repository.SessionWithDetails
 import com.davidpv.padelmatch.ui.history.BracketGameCard
 import com.davidpv.padelmatch.ui.history.ClassificationChart
-import com.davidpv.padelmatch.ui.theme.playerColors
+import com.davidpv.padelmatch.ui.theme.PlayerBadge
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -145,19 +144,7 @@ fun SessionDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         sortedPlayers.forEach { player ->
-                            val (bg, fg) = playerColors(player.playerName)
-                            Surface(
-                                shape = MaterialTheme.shapes.small,
-                                color = bg,
-                                contentColor = fg
-                            ) {
-                                Text(
-                                    text = player.playerName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                                )
-                            }
+                            PlayerBadge(name = player.playerName)
                         }
                     }
                 }

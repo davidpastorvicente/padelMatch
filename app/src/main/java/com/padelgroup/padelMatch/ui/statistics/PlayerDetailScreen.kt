@@ -109,7 +109,7 @@ fun PlayerDetailScreen(
 
 @Composable
 private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -> Unit, modifier: Modifier = Modifier) {
-    val (badgeBg, _) = playerColors(data.player.name)
+    val lineColor = playerColors(data.player.name).accent
     val winPct = "%.1f%%".format(data.winRatio * 100)
 
     Column(
@@ -152,7 +152,7 @@ private fun PlayerDetailContent(data: PlayerDetailData, onSessionClick: (Long) -
                     Spacer(Modifier.height(12.dp))
                     PlayerWinRatioChart(
                         history = data.sessionHistory,
-                        lineColor = badgeBg,
+                        lineColor = lineColor,
                         modifier = Modifier.fillMaxWidth().height(160.dp)
                     )
                     Spacer(Modifier.height(16.dp))
@@ -257,14 +257,6 @@ private fun PlayerWinRatioChart(
     modifier: Modifier = Modifier
 ) {
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val darkerLineColor = remember(lineColor) {
-        Color(
-            red = lineColor.red * 0.65f,
-            green = lineColor.green * 0.65f,
-            blue = lineColor.blue * 0.65f,
-            alpha = 1f
-        )
-    }
 
     val xFractions = remember(history) {
         if (history.size == 1) return@remember listOf(0.5f)
@@ -358,7 +350,7 @@ private fun PlayerWinRatioChart(
 
         for (i in 0 until n - 1) {
             drawLine(
-                color = darkerLineColor,
+                color = lineColor,
                 start = Offset(xPos(i), yPos(i)),
                 end = Offset(xPos(i + 1), yPos(i + 1)),
                 strokeWidth = 7f
@@ -366,15 +358,15 @@ private fun PlayerWinRatioChart(
         }
 
         for (i in 0 until n) {
-            drawCircle(color = darkerLineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
+            drawCircle(color = lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
             drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
         }
 
         selectedIndex?.let { idx ->
             val tx = xPos(idx)
             val ty = yPos(idx)
-            drawCircle(color = darkerLineColor.copy(alpha = 0.25f), radius = 20f, center = Offset(tx, ty))
-            drawCircle(color = darkerLineColor, radius = 9f, center = Offset(tx, ty))
+            drawCircle(color = lineColor.copy(alpha = 0.25f), radius = 20f, center = Offset(tx, ty))
+            drawCircle(color = lineColor, radius = 9f, center = Offset(tx, ty))
             drawCircle(color = Color.White, radius = 4f, center = Offset(tx, ty))
 
             drawContext.canvas.nativeCanvas.apply {

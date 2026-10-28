@@ -1,6 +1,34 @@
 package com.davidpv.padelmatch.ui.theme
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+/**
+ * Theme-aware colours for a player.
+ * - [container] / [onContainer]: filled badges and selected chips.
+ * - [content]: text and icons drawn directly on the app surface.
+ * - [accent]: chart lines, dots and progress bars drawn on the app surface.
+ */
+@Immutable
+data class PlayerColorSet(
+    val container: Color,
+    val onContainer: Color,
+    val content: Color,
+    val accent: Color
+)
 
 private val namedPlayerColors: Map<String, Pair<Color, Color>> = mapOf(
     "charlie" to (Color(0xFFC8E6C9) to Color(0xFF1B5E20)),  // green
@@ -25,6 +53,44 @@ private val fallbackPalette = listOf(
     Color(0xFFE8D5B7) to Color(0xFF5C3A00),
 )
 
-fun playerColors(name: String): Pair<Color, Color> =
-    namedPlayerColors[name.lowercase()]
+fun playerColors(name: String, darkTheme: Boolean): PlayerColorSet {
+    val (container, onContainer) = namedPlayerColors[name.lowercase()]
         ?: fallbackPalette[kotlin.math.abs(name.hashCode()) % fallbackPalette.size]
+    return if (darkTheme) {
+        PlayerColorSet(container, onContainer, content = container, accent = container)
+    } else {
+        PlayerColorSet(container, onContainer, content = onContainer, accent = lerp(container, onContainer, 0.45f))
+    }
+}
+
+@Composable
+@ReadOnlyComposable
+fun isAppInDarkTheme(): Boolean = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+@Composable
+@ReadOnlyComposable
+fun playerColors(name: String): PlayerColorSet = playerColors(name, isAppInDarkTheme())
+
+@Composable
+fun PlayerBadge(
+    name: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.labelSmall,
+    horizontalPadding: Dp = 8.dp,
+    verticalPadding: Dp = 3.dp
+) {
+    val colors = playerColors(name)
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small,
+        color = colors.container,
+        contentColor = colors.onContainer
+    ) {
+        Text(
+            text = name,
+            style = style,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding)
+        )
+    }
+}

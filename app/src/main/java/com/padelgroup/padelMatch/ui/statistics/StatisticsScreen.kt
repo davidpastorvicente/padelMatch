@@ -20,7 +20,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -41,6 +40,7 @@ import com.davidpv.padelmatch.data.model.PlayerStats
 import com.davidpv.padelmatch.data.model.Season
 import com.davidpv.padelmatch.data.model.SeasonFilter
 import com.davidpv.padelmatch.data.model.label
+import com.davidpv.padelmatch.ui.theme.PlayerBadge
 import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -127,7 +127,7 @@ private fun SeasonSelector(
 
 @Composable
 fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRange: Pair<Long, Long>? = null) {
-    val (badgeBg, badgeFg) = remember(stats.player.name) { playerColors(stats.player.name) }
+    val colors = playerColors(stats.player.name)
     val winPct = remember(stats.winRatio) { "%.1f%%".format(stats.winRatio * 100) }
 
     ElevatedCard(
@@ -136,19 +136,12 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Player badge
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = badgeBg,
-                contentColor = badgeFg
-            ) {
-                Text(
-                    text = stats.player.name,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
-            }
+            PlayerBadge(
+                name = stats.player.name,
+                style = MaterialTheme.typography.labelMedium,
+                horizontalPadding = 10.dp,
+                verticalPadding = 4.dp
+            )
 
             Spacer(Modifier.height(12.dp))
 
@@ -184,7 +177,7 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
 
             if (stats.history.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                WinRatioSparkLine(history = stats.history, lineColor = badgeBg, globalEpochRange = globalEpochRange)
+                WinRatioSparkLine(history = stats.history, lineColor = colors.accent, globalEpochRange = globalEpochRange)
             }
         }
     }
@@ -194,14 +187,6 @@ fun PlayerStatCard(stats: PlayerStats, onClick: () -> Unit = {}, globalEpochRang
 fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modifier: Modifier = Modifier, globalEpochRange: Pair<Long, Long>? = null) {
     if (history.isEmpty()) return
 
-    val darkerLineColor = remember(lineColor) {
-        Color(
-            red = lineColor.red * 0.65f,
-            green = lineColor.green * 0.65f,
-            blue = lineColor.blue * 0.65f,
-            alpha = 1f
-        )
-    }
 
     val xFractions = remember(history, globalEpochRange) {
         val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
@@ -228,14 +213,14 @@ fun WinRatioSparkLine(history: List<PlayerSessionEntry>, lineColor: Color, modif
 
         for (i in 0 until n - 1) {
             drawLine(
-                color = darkerLineColor,
+                color = lineColor,
                 start = Offset(xPos(i), yPos(i)),
                 end = Offset(xPos(i + 1), yPos(i + 1)),
                 strokeWidth = 7f
             )
         }
         for (i in 0 until n) {
-            drawCircle(color = darkerLineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
+            drawCircle(color = lineColor, radius = 7f, center = Offset(xPos(i), yPos(i)))
             drawCircle(color = Color.White, radius = 3f, center = Offset(xPos(i), yPos(i)))
         }
     }

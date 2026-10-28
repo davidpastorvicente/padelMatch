@@ -30,7 +30,7 @@ fun ClassificationChart(players: List<SessionPlayerWithName>) {
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         sorted.forEach { player ->
-            val (bg, fg) = remember(player.playerName) { playerColors(player.playerName) }
+            val colors = playerColors(player.playerName)
             val pct = remember(player.winRatio) { (player.winRatio * 100).roundToInt() }
 
             Row(
@@ -42,20 +42,20 @@ fun ClassificationChart(players: List<SessionPlayerWithName>) {
                     text = player.playerName,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = fg,
+                    color = colors.content,
                     modifier = Modifier.width(72.dp)
                 )
                 LinearProgressIndicator(
                     progress = { player.winRatio },
                     modifier = Modifier.weight(1f).height(14.dp),
-                    color = bg,
-                    trackColor = bg.copy(alpha = 0.2f)
+                    color = colors.accent,
+                    trackColor = colors.accent.copy(alpha = 0.2f)
                 )
                 Text(
                     text = "$pct%",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = fg,
+                    color = colors.content,
                     modifier = Modifier.width(32.dp)
                 )
             }
