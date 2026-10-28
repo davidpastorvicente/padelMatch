@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.davidpv.padelmatch.ui.theme.playerColors
 
@@ -69,16 +70,17 @@ fun PlayerSelectionStep(
             state.players.forEach { player ->
                 val (bg, fg) = playerColors(player.name)
                 val selected = player.id in state.selectedPlayerIds
+                val unselectedLabel = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) bg else fg
                 InputChip(
                     selected = selected,
                     onClick = { onTogglePlayer(player.id) },
                     label = { Text(player.name) },
                     colors = InputChipDefaults.inputChipColors(
                         containerColor = MaterialTheme.colorScheme.surface,
-                        labelColor = fg,
+                        labelColor = unselectedLabel,
                         selectedContainerColor = bg,
                         selectedLabelColor = fg,
-                        trailingIconColor = fg.copy(alpha = 0.6f),
+                        trailingIconColor = unselectedLabel.copy(alpha = 0.6f),
                         selectedTrailingIconColor = fg
                     ),
                     border = InputChipDefaults.inputChipBorder(
