@@ -129,7 +129,7 @@ private fun CombinedWinRatioChart(
         val globalEpochRange = winRatioEpochRange(playerStats.flatMap { it.history })
         playerStats.filter { it.history.isNotEmpty() }.map { stats ->
             WinRatioSeries(
-                label = stats.player.name,
+                playerName = stats.player.name,
                 color = playerColors(stats.player.name, darkTheme).accent,
                 entries = stats.history,
                 xFractions = winRatioXFractions(stats.history, globalEpochRange)

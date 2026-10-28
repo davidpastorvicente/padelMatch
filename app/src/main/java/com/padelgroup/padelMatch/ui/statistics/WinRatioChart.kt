@@ -19,14 +19,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import com.davidpv.padelmatch.data.model.PlayerSessionEntry
+import com.davidpv.padelmatch.ui.theme.playerColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 
-/** One player's line in a win-ratio chart. [label] is shown in the tooltip when not null. */
+/** One line in a win-ratio chart. [playerName] is shown in the tooltip when not null. */
 data class WinRatioSeries(
-    val label: String?,
+    val playerName: String?,
     val color: Color,
     val entries: List<PlayerSessionEntry>,
     val xFractions: List<Float>
@@ -154,7 +155,7 @@ private fun DrawScope.drawTooltip(series: WinRatioSeries, entry: PlayerSessionEn
     } catch (_: Exception) { entry.date }
 
     val lines = listOfNotNull(
-        series.label?.let { it to paint(series.color.toArgb(), 38f, bold = true) },
+        series.playerName?.let { it to paint(playerColors(it, darkTheme = true).content.toArgb(), 38f, bold = true) },
         dateStr to paint(android.graphics.Color.argb(200, 255, 255, 255), 26f, bold = false),
         "${(entry.winRatio * 100).roundToInt()}%" to paint(android.graphics.Color.WHITE, 40f, bold = true)
     )
@@ -165,7 +166,9 @@ private fun DrawScope.drawTooltip(series: WinRatioSeries, entry: PlayerSessionEn
     val lineHeights = lines.map { (_, p) -> p.fontMetrics.let { -it.ascent + it.descent } }
     val tooltipW = lines.maxOf { (text, p) -> p.measureText(text) } + hPad * 2
     val tooltipH = hPad * 2 + lineHeights.sum() + lineSpacing * (lines.size - 1)
-    val tooltipX = (anchor.x - tooltipW / 2).coerceIn(PADDING_LEFT, area.width - PADDING_RIGHT - tooltipW)
+    val tooltipX = (anchor.x - tooltipW / 2)
+        .coerceAtMost(area.width - PADDING_RIGHT - tooltipW)
+        .coerceAtLeast(PADDING_LEFT)
     val tooltipY = if (anchor.y > area.height / 2) anchor.y - tooltipH - margin else anchor.y + margin
     val bgPaint = android.graphics.Paint().apply {
         color = android.graphics.Color.argb(230, 30, 30, 30)
